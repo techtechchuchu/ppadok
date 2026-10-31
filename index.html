@@ -1,0 +1,2870 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>빠독 - 빠른 독해 & AI 과외</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --navy:        #1a2744;
+      --navy-light:  #2d3f6b;
+      --mint:        #2dd4bf;
+      --mint-light:  #99f6e4;
+      --mint-pale:   #f0fdfb;
+      --yellow:      #facc15;
+      --yellow-pale: #fefce8;
+      --red:         #ef4444;
+      --green:       #22c55e;
+      --orange:      #f97316;
+      --blue:        #3b82f6;
+      --white:       #ffffff;
+      --gray-100:    #f8fafc;
+      --gray-200:    #f1f5f9;
+      --gray-300:    #cbd5e1;
+      --gray-500:    #64748b;
+      --gray-700:    #334155;
+
+      /* 과목별 컬러 */
+      --korean-color:  #6366f1; /* 보라 - 국어 */
+      --math-color:    #0ea5e9; /* 하늘 - 수학 */
+      --english-color: #10b981; /* 초록 - 영어 */
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--gray-100);
+      color: var(--gray-700);
+      min-height: 100vh;
+      padding-bottom: 72px;
+    }
+
+    /* ===========================
+       탭 뷰 시스템
+    =========================== */
+    .tab-view { display: none; }
+    .tab-view.active { display: block; }
+
+    /* ===========================
+       공통 헤더
+    =========================== */
+    header {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-300);
+      padding: 0 20px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 1px 8px rgba(26,39,68,0.07);
+    }
+
+    .logo { display: flex; align-items: center; gap: 8px; }
+
+    .logo-icon {
+      width: 32px; height: 32px;
+      background: var(--navy);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .logo-icon svg { width: 18px; height: 18px; }
+
+    .logo-text {
+      font-size: 20px; font-weight: 900;
+      color: var(--navy); letter-spacing: -0.5px;
+    }
+    .logo-text span { color: var(--mint); }
+
+    .header-right { display: flex; align-items: center; gap: 8px; }
+
+    .header-btn {
+      background: var(--navy); color: var(--white);
+      border: none; border-radius: 18px;
+      padding: 7px 16px; font-size: 13px; font-weight: 700;
+      cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    /* 과목 선택 드롭다운 */
+    .subject-selector {
+      position: relative;
+    }
+
+    .subject-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--gray-200); border: none; border-radius: 18px;
+      padding: 7px 14px; font-size: 13px; font-weight: 700;
+      cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+      color: var(--navy);
+    }
+
+    .subject-btn .s-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--korean-color);
+      transition: background 0.2s;
+    }
+
+    .subject-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      background: var(--white);
+      border: 1px solid var(--gray-300);
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      overflow: hidden;
+      min-width: 140px;
+      z-index: 300;
+    }
+
+    .subject-dropdown.open { display: block; }
+
+    .subject-option {
+      display: flex; align-items: center; gap: 10px;
+      padding: 13px 16px;
+      cursor: pointer;
+      font-size: 14px; font-weight: 700;
+      color: var(--gray-700);
+      transition: background 0.15s;
+    }
+
+    .subject-option:hover { background: var(--gray-100); }
+    .subject-option.active { background: var(--gray-100); color: var(--navy); }
+
+    .subject-option .opt-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+
+    /* ===========================
+       하단 네비게이션
+    =========================== */
+    .bottom-nav {
+      background: var(--white);
+      border-top: 1px solid var(--gray-300);
+      padding: 8px 0 6px;
+      display: flex;
+      justify-content: space-around;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 200;
+    }
+
+    .nav-item {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 2px;
+      padding: 4px 12px;
+      cursor: pointer;
+      opacity: 0.4;
+      transition: opacity 0.2s;
+      border: none; background: none;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .nav-item.active { opacity: 1; }
+    .nav-item.active .nav-label { color: var(--navy); font-weight: 700; }
+
+    .nav-icon { font-size: 22px; }
+    .nav-label { font-size: 10px; color: var(--gray-500); font-weight: 500; }
+
+    /* ===========================
+       공통 유틸
+    =========================== */
+    .section { padding: 32px 20px 0; }
+    .section-title {
+      font-size: 19px; font-weight: 900;
+      color: var(--navy); margin-bottom: 5px; letter-spacing: -0.5px;
+    }
+    .section-sub { font-size: 13px; color: var(--gray-500); margin-bottom: 20px; }
+
+    /* ===========================
+       [TAB 1] 홈 화면
+    =========================== */
+
+    /* 히어로 */
+    .hero {
+      padding: 48px 24px 56px;
+      text-align: center;
+      position: relative; overflow: hidden;
+      transition: background 0.4s;
+    }
+
+    .hero.korean  { background: linear-gradient(135deg, #312e81, #4338ca); }
+    .hero.math    { background: linear-gradient(135deg, #0c4a6e, #0369a1); }
+    .hero.english { background: linear-gradient(135deg, #064e3b, #047857); }
+
+    .hero::before {
+      content: ''; position: absolute;
+      top: -60px; right: -60px;
+      width: 240px; height: 240px;
+      background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: var(--white);
+      font-size: 12px; font-weight: 700;
+      padding: 5px 14px; border-radius: 20px;
+      margin-bottom: 16px; letter-spacing: 0.3px;
+    }
+
+    .hero h1 {
+      font-size: 28px; font-weight: 900;
+      color: var(--white); line-height: 1.35;
+      margin-bottom: 12px; letter-spacing: -0.8px;
+    }
+
+    .hero h1 .hl { color: var(--yellow); }
+
+    .hero p {
+      font-size: 14px; color: rgba(255,255,255,0.75);
+      line-height: 1.7; margin-bottom: 28px;
+    }
+
+    .hero-cta { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+
+    .btn-primary {
+      background: var(--yellow); color: var(--navy);
+      border: none; border-radius: 13px;
+      padding: 15px 32px; font-size: 16px; font-weight: 900;
+      cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+      width: 100%; max-width: 280px;
+      box-shadow: 0 4px 16px rgba(250,204,21,0.4);
+      transition: transform 0.15s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); }
+
+    .btn-ghost {
+      background: rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.85);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 13px;
+      padding: 13px 32px; font-size: 14px; font-weight: 700;
+      cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+      width: 100%; max-width: 280px;
+    }
+
+    /* 과목 탭 카드 */
+    .subject-tabs {
+      display: flex; gap: 10px;
+      padding: 20px 20px 0;
+    }
+
+    .subj-card {
+      flex: 1; border-radius: 16px; padding: 16px 12px;
+      text-align: center; cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+      background: var(--white);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .subj-card.active-subj { border-color: var(--yellow); }
+
+    .subj-card .sc-emoji { font-size: 26px; margin-bottom: 6px; }
+
+    .subj-card .sc-name {
+      font-size: 13px; font-weight: 700;
+      color: var(--navy); margin-bottom: 3px;
+    }
+
+    .subj-card .sc-tag {
+      font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: 6px;
+    }
+
+    .tag-korean  { background: #ede9fe; color: var(--korean-color); }
+    .tag-math    { background: #e0f2fe; color: var(--math-color); }
+    .tag-english { background: #d1fae5; color: var(--english-color); }
+
+    /* 통계 바 */
+    .stats-bar {
+      background: var(--white); margin: 20px 20px 0;
+      border-radius: 16px; padding: 16px;
+      display: flex; justify-content: space-around;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .stat-item { text-align: center; }
+
+    .stat-num {
+      font-size: 20px; font-weight: 900;
+      color: var(--navy); line-height: 1;
+    }
+
+    .stat-num span { color: var(--mint); }
+    .stat-label { font-size: 11px; color: var(--gray-500); margin-top: 3px; }
+
+    /* 기능 그리드 */
+    .feature-grid {
+      display: flex; flex-direction: column; gap: 12px;
+    }
+
+    .feature-card {
+      background: var(--white); border-radius: 16px;
+      padding: 18px; display: flex; gap: 14px; align-items: center;
+      box-shadow: 0 2px 8px rgba(26,39,68,0.05);
+      border: 1.5px solid transparent;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+
+    .feature-card:hover {
+      border-color: var(--mint);
+      box-shadow: 0 4px 16px rgba(45,212,191,0.15);
+    }
+
+    .feature-card.active { border-color: var(--mint); background: var(--mint-pale); }
+
+    .feat-icon {
+      width: 50px; height: 50px; border-radius: 13px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+
+    .feat-info { flex: 1; }
+    .feat-title { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+    .feat-desc  { font-size: 12px; color: var(--gray-500); line-height: 1.5; }
+
+    .feat-badge {
+      font-size: 10px; font-weight: 700;
+      padding: 3px 8px; border-radius: 7px;
+      background: var(--mint); color: var(--navy); flex-shrink: 0;
+    }
+
+    /* 과목별 기능 컨텐츠 */
+    .subj-content { display: none; }
+    .subj-content.active { display: block; }
+
+    /* 지문 데모 (국어) */
+    .demo-section {
+      background: var(--navy); padding: 32px 20px; margin-top: 0;
+    }
+
+    .demo-section .section-title { color: var(--white); }
+    .demo-section .section-sub   { color: rgba(255,255,255,0.55); }
+
+    .demo-card {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px; padding: 18px; margin-top: 16px;
+    }
+
+    .demo-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--mint); letter-spacing: 1px; margin-bottom: 10px;
+    }
+
+    .demo-para {
+      font-size: 13px; line-height: 1.9;
+      color: rgba(255,255,255,0.85);
+      border-left: 3px solid var(--gray-500);
+      padding-left: 12px; margin-bottom: 12px;
+    }
+
+    .demo-para.active-para {
+      border-left-color: var(--mint); color: var(--white);
+    }
+
+    .demo-para .key-s {
+      background: rgba(45,212,191,0.25);
+      border-radius: 4px; padding: 0 3px;
+      color: var(--mint-light); font-weight: 700;
+    }
+
+    .demo-chips { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+
+    .chip {
+      font-size: 12px; padding: 6px 13px; border-radius: 18px;
+      font-weight: 700; font-family: 'Noto Sans KR', sans-serif; cursor: pointer;
+    }
+
+    .chip-mint  { background: var(--mint); color: var(--navy); border: none; }
+    .chip-line  {
+      background: transparent; color: rgba(255,255,255,0.7);
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+
+    /* 수학 데모 */
+    .math-demo-card {
+      background: var(--white); border-radius: 16px;
+      padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 12px;
+    }
+
+    .math-problem {
+      font-size: 15px; font-weight: 700; color: var(--navy);
+      margin-bottom: 12px; line-height: 1.5;
+    }
+
+    .math-steps { display: flex; flex-direction: column; gap: 8px; }
+
+    .math-step {
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+
+    .ms-num {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--math-color); color: var(--white);
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 2px;
+    }
+
+    .ms-text { font-size: 13px; color: var(--gray-700); line-height: 1.6; }
+    .ms-text .wrong { color: var(--red); font-weight: 700; text-decoration: line-through; }
+    .ms-text .correct { color: var(--green); font-weight: 700; }
+
+    /* 영어 데모 */
+    .eng-card {
+      background: var(--white); border-radius: 16px;
+      padding: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 12px;
+    }
+
+    .eng-sentence {
+      font-size: 14px; line-height: 1.9; color: var(--gray-700);
+      margin-bottom: 12px;
+    }
+
+    .eng-sentence .eng-hl {
+      background: #d1fae5; border-radius: 4px;
+      padding: 0 3px; font-weight: 700; color: #065f46;
+    }
+
+    .eng-sentence .eng-err {
+      background: #fee2e2; border-radius: 4px;
+      padding: 0 3px; font-weight: 700; color: var(--red);
+      text-decoration: underline;
+    }
+
+    .vocab-chip-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+
+    .vocab-chip {
+      padding: 5px 12px; border-radius: 18px;
+      font-size: 12px; font-weight: 700;
+      background: #d1fae5; color: #065f46; cursor: pointer;
+    }
+
+    /* 학습 단계 */
+    .steps-section { padding: 32px 20px; background: var(--white); }
+
+    .step-list {
+      display: flex; flex-direction: column; gap: 0;
+      margin-top: 20px; position: relative;
+    }
+
+    .step-list::before {
+      content: ''; position: absolute;
+      left: 23px; top: 24px; bottom: 24px; width: 2px;
+      background: linear-gradient(to bottom, var(--mint), var(--navy-light));
+      border-radius: 2px;
+    }
+
+    .step-item {
+      display: flex; gap: 14px; align-items: flex-start;
+      padding: 0 0 24px 0; position: relative;
+    }
+
+    .step-num {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: var(--navy); color: var(--white);
+      font-size: 17px; font-weight: 900;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; position: relative; z-index: 1;
+      border: 3px solid var(--mint);
+    }
+
+    .step-content { padding-top: 8px; }
+    .step-title { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 3px; }
+    .step-desc  { font-size: 12px; color: var(--gray-500); line-height: 1.6; }
+
+    /* 하단 CTA */
+    .bottom-cta {
+      background: linear-gradient(135deg, var(--mint) 0%, #06b6d4 100%);
+      padding: 36px 24px; text-align: center;
+    }
+
+    .bottom-cta h2 {
+      font-size: 20px; font-weight: 900; color: var(--navy);
+      margin-bottom: 6px; line-height: 1.4;
+    }
+
+    .bottom-cta p { font-size: 12px; color: rgba(26,39,68,0.7); margin-bottom: 20px; }
+
+    .btn-dark {
+      background: var(--navy); color: var(--white);
+      border: none; border-radius: 13px; padding: 15px 32px;
+      font-size: 16px; font-weight: 900; cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif;
+      width: 100%; max-width: 280px; transition: transform 0.15s;
+    }
+
+    .btn-dark:hover { transform: translateY(-2px); }
+
+    /* ===========================
+       [TAB 2] AI 과외 선생님
+    =========================== */
+
+    /* 과목 선택 헤더 (과외 탭) */
+    .tutor-subject-bar {
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-300);
+      padding: 12px 20px;
+      display: flex; gap: 8px;
+    }
+
+    .tsb-btn {
+      flex: 1; padding: 10px 8px; border-radius: 12px;
+      font-size: 13px; font-weight: 700;
+      border: 2px solid var(--gray-200);
+      background: var(--gray-100); color: var(--gray-500);
+      cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+      transition: all 0.15s; text-align: center;
+    }
+
+    .tsb-btn.active-kor { border-color: var(--korean-color); background: #ede9fe; color: var(--korean-color); }
+    .tsb-btn.active-mat { border-color: var(--math-color);   background: #e0f2fe; color: var(--math-color); }
+    .tsb-btn.active-eng { border-color: var(--english-color);background: #d1fae5; color: var(--english-color); }
+
+    /* 페이지 전환 (과외 탭 내부) */
+    .tutor-page { display: none; }
+    .tutor-page.active { display: block; }
+
+    /* 단계 인디케이터 */
+    .step-indicator {
+      display: flex; align-items: center; justify-content: center;
+      padding: 18px 20px 0; gap: 0;
+    }
+
+    .si-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+
+    .si-dot {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--gray-200); color: var(--gray-500);
+      font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--gray-300);
+    }
+
+    .si-dot.done { background: var(--mint); color: var(--navy); border-color: var(--mint); }
+    .si-dot.curr { background: var(--navy); color: var(--white); border-color: var(--navy); }
+
+    .si-label { font-size: 10px; color: var(--gray-500); font-weight: 500; white-space: nowrap; }
+    .si-label.curr { color: var(--navy); font-weight: 700; }
+
+    .si-line {
+      flex: 1; height: 2px; background: var(--gray-300);
+      margin: 0 4px; margin-bottom: 16px; max-width: 44px;
+    }
+
+    .si-line.done { background: var(--mint); }
+
+    /* 업로드 존 */
+    .upload-zone {
+      background: var(--white); border: 2.5px dashed var(--gray-300);
+      border-radius: 18px; padding: 36px 20px; text-align: center;
+      cursor: pointer; transition: border-color 0.2s, background 0.2s;
+      margin: 16px 20px 0; position: relative;
+    }
+
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--mint); background: var(--mint-pale);
+    }
+
+    .upload-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0;
+      cursor: pointer; width: 100%; height: 100%;
+    }
+
+    .upload-icon { font-size: 46px; line-height: 1; margin-bottom: 12px; }
+    .upload-zone h3 { font-size: 15px; font-weight: 900; color: var(--navy); margin-bottom: 5px; }
+    .upload-zone p  { font-size: 13px; color: var(--gray-500); line-height: 1.6; }
+
+    .upload-hint {
+      margin-top: 14px; display: inline-block;
+      background: var(--gray-200); border-radius: 8px;
+      padding: 5px 12px; font-size: 12px; color: var(--gray-500);
+    }
+
+    /* 미리보기 */
+    .preview-wrap { display: none; margin: 16px 20px 0; position: relative; }
+    .preview-wrap.visible { display: block; }
+    .preview-wrap img { width: 100%; border-radius: 14px; border: 2px solid var(--mint); display: block; }
+
+    .preview-remove {
+      position: absolute; top: 10px; right: 10px;
+      background: var(--red); color: var(--white);
+      border: none; border-radius: 50%;
+      width: 28px; height: 28px; font-size: 14px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+
+    /* 문제 유형 칩 */
+    .type-chips { display: flex; gap: 8px; flex-wrap: wrap; padding: 16px 20px 0; }
+
+    .type-chip {
+      padding: 7px 14px; border-radius: 18px;
+      border: 1.5px solid var(--gray-300); background: var(--white);
+      font-size: 12px; font-weight: 700; color: var(--gray-500);
+      cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+      transition: all 0.15s;
+    }
+
+    .type-chip.selected {
+      border-color: var(--navy); background: var(--navy); color: var(--white);
+    }
+
+    /* 팁 박스 */
+    .tip-box {
+      margin: 14px 20px 0;
+      background: var(--yellow-pale); border: 1px solid #fde68a;
+      border-radius: 12px; padding: 12px 14px;
+      display: flex; gap: 10px; align-items: flex-start;
+    }
+
+    .tip-icon { font-size: 17px; flex-shrink: 0; }
+    .tip-box p { font-size: 12px; color: #92400e; line-height: 1.6; }
+
+    /* 분석 버튼 */
+    .analyze-btn {
+      margin: 20px 20px 0; width: calc(100% - 40px);
+      background: var(--yellow); color: var(--navy);
+      border: none; border-radius: 13px; padding: 16px;
+      font-size: 16px; font-weight: 900; cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif;
+      box-shadow: 0 4px 16px rgba(250,204,21,0.35);
+      transition: transform 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+
+    .analyze-btn:hover { transform: translateY(-2px); }
+
+    .analyze-btn:disabled {
+      background: var(--gray-300); color: var(--gray-500);
+      box-shadow: none; cursor: not-allowed; transform: none;
+    }
+
+    /* 로딩 */
+    .analyzing-wrap { text-align: center; padding: 52px 20px 0; }
+
+    .spinner-ring {
+      width: 72px; height: 72px; border-radius: 50%;
+      border: 5px solid var(--gray-200); border-top-color: var(--yellow);
+      animation: spin 0.9s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .analyzing-wrap h2 { font-size: 20px; font-weight: 900; color: var(--navy); margin-bottom: 6px; }
+    .analyzing-wrap p  { font-size: 13px; color: var(--gray-500); line-height: 1.7; margin-bottom: 28px; }
+
+    .analysis-steps {
+      background: var(--white); border-radius: 16px;
+      padding: 18px; margin: 0 20px;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+
+    .a-step { display: flex; align-items: center; gap: 10px; }
+
+    .a-step-icon {
+      width: 34px; height: 34px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; flex-shrink: 0;
+    }
+
+    .a-step-icon.pending  { background: var(--gray-200); filter: grayscale(1); opacity: 0.5; }
+    .a-step-icon.loading  { background: #fef9c3; animation: pulse 1s infinite; }
+    .a-step-icon.complete { background: #dcfce7; }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+    .a-step-label { flex: 1; font-size: 13px; font-weight: 700; color: var(--navy); }
+    .a-step-label.pending { color: var(--gray-300); }
+
+    .a-step-status { font-size: 11px; font-weight: 700; }
+    .status-done    { color: var(--green); }
+    .status-loading { color: var(--orange); }
+    .status-wait    { color: var(--gray-300); }
+
+    /* 결과 리포트 */
+    .result-hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+      padding: 24px 20px; color: var(--white);
+    }
+
+    .result-hero-top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+
+    .tutor-avatar {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--yellow); display: flex; align-items: center; justify-content: center;
+      font-size: 26px; flex-shrink: 0; border: 3px solid rgba(255,255,255,0.3);
+    }
+
+    .tutor-intro small { display: block; font-size: 11px; color: rgba(255,255,255,0.6); margin-bottom: 2px; }
+    .tutor-intro strong { font-size: 15px; font-weight: 900; color: var(--white); }
+
+    .result-comment {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px; padding: 14px;
+      font-size: 13px; color: rgba(255,255,255,0.9); line-height: 1.75;
+    }
+
+    .result-comment::before {
+      content: '"'; font-size: 32px; color: var(--yellow);
+      line-height: 0.6; display: block; margin-bottom: 5px;
+    }
+
+    .score-row { display: flex; gap: 10px; padding: 16px 20px 0; }
+
+    .score-card {
+      flex: 1; background: var(--white); border-radius: 13px;
+      padding: 14px 10px; text-align: center;
+      box-shadow: 0 2px 8px rgba(26,39,68,0.06);
+    }
+
+    .score-card .sc-icon { font-size: 20px; margin-bottom: 5px; }
+
+    .score-card .sc-num {
+      font-size: 22px; font-weight: 900; color: var(--navy);
+      line-height: 1; margin-bottom: 3px;
+    }
+
+    .sc-num.red    { color: var(--red); }
+    .sc-num.green  { color: var(--green); }
+    .sc-num.orange { color: var(--orange); }
+    .score-card .sc-label { font-size: 10px; color: var(--gray-500); }
+
+    .result-section { padding: 20px 20px 0; }
+
+    .result-section-title {
+      font-size: 16px; font-weight: 900; color: var(--navy);
+      margin-bottom: 12px; display: flex; align-items: center; gap: 5px;
+    }
+
+    /* 오답 카드 */
+    .error-card {
+      background: var(--white); border-radius: 14px; padding: 16px;
+      margin-bottom: 10px; box-shadow: 0 2px 8px rgba(26,39,68,0.05);
+      border-left: 4px solid var(--red);
+    }
+
+    .error-card.warning { border-left-color: var(--orange); }
+    .error-card.info    { border-left-color: var(--blue); }
+
+    .error-card-top {
+      display: flex; justify-content: space-between;
+      align-items: flex-start; margin-bottom: 8px;
+    }
+
+    .error-qnum {
+      font-size: 11px; font-weight: 700; color: var(--gray-500);
+      background: var(--gray-200); padding: 2px 7px; border-radius: 6px;
+    }
+
+    .error-type-tag { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 6px; }
+    .tag-red    { background: #fee2e2; color: var(--red); }
+    .tag-orange { background: #ffedd5; color: var(--orange); }
+    .tag-blue   { background: #dbeafe; color: var(--blue); }
+
+    .error-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 5px; }
+    .error-desc  { font-size: 12px; color: var(--gray-500); line-height: 1.6; margin-bottom: 10px; }
+
+    .error-tip {
+      background: var(--gray-100); border-radius: 9px;
+      padding: 9px 12px; font-size: 12px; color: var(--gray-700); line-height: 1.6;
+    }
+
+    .error-tip strong { color: var(--navy); font-weight: 700; }
+
+    /* 시간 분석 */
+    .time-analysis {
+      background: var(--white); border-radius: 14px; padding: 16px;
+      margin-bottom: 10px; box-shadow: 0 2px 8px rgba(26,39,68,0.05);
+    }
+
+    .time-analysis-title {
+      font-size: 13px; font-weight: 700; color: var(--navy);
+      margin-bottom: 12px;
+    }
+
+    .time-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+    .time-bar-label { font-size: 12px; color: var(--gray-700); width: 52px; flex-shrink: 0; font-weight: 500; }
+
+    .time-bar-track {
+      flex: 1; height: 9px; background: var(--gray-200);
+      border-radius: 9px; overflow: hidden;
+    }
+
+    .time-bar-fill { height: 100%; border-radius: 9px; }
+    .fill-green  { background: var(--green); }
+    .fill-yellow { background: var(--yellow); }
+    .fill-red    { background: var(--red); }
+
+    .time-bar-val { font-size: 12px; font-weight: 700; color: var(--gray-700); width: 34px; text-align: right; flex-shrink: 0; }
+
+    /* 처방 카드 */
+    .prescription-card {
+      background: linear-gradient(135deg, #fefce8, #fff);
+      border: 1.5px solid #fde68a; border-radius: 14px;
+      padding: 18px; margin-bottom: 10px;
+    }
+
+    .pc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .pc-icon   { font-size: 26px; }
+    .pc-title  { font-size: 14px; font-weight: 900; color: var(--navy); }
+    .pc-sub    { font-size: 12px; color: var(--gray-500); }
+
+    .prescription-list { display: flex; flex-direction: column; gap: 9px; }
+
+    .prescription-item {
+      display: flex; gap: 10px; align-items: flex-start;
+      background: var(--white); border-radius: 9px;
+      padding: 11px; border: 1px solid #fde68a;
+    }
+
+    .pi-num {
+      width: 20px; height: 20px; background: var(--navy); color: var(--white);
+      border-radius: 50%; font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+
+    .pi-text { font-size: 12px; color: var(--gray-700); line-height: 1.6; }
+    .pi-text strong { color: var(--navy); font-weight: 700; }
+
+    /* 주간 차트 */
+    .weekly-preview {
+      background: var(--navy); border-radius: 14px;
+      padding: 18px; margin-bottom: 10px; color: var(--white);
+    }
+
+    .wp-title { font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+
+    .mini-chart {
+      display: flex; align-items: flex-end; gap: 5px;
+      height: 56px; margin-bottom: 8px;
+    }
+
+    .mini-bar-wrap {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; gap: 3px; height: 100%; justify-content: flex-end;
+    }
+
+    .mini-bar {
+      width: 100%; border-radius: 3px 3px 0 0;
+      background: rgba(255,255,255,0.2);
+    }
+
+    .mini-bar.today { background: var(--yellow); }
+    .mini-bar-day  { font-size: 9px; color: rgba(255,255,255,0.5); }
+    .mini-bar-day.today { color: var(--yellow); font-weight: 700; }
+
+    /* 결과 액션 */
+    .result-actions { padding: 20px 20px 0; display: flex; flex-direction: column; gap: 10px; }
+
+    .btn-full {
+      width: 100%; border-radius: 13px; padding: 15px;
+      font-size: 15px; font-weight: 900; cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif;
+      border: none; transition: transform 0.15s;
+      display: block; text-align: center; text-decoration: none;
+    }
+
+    .btn-full:hover { transform: translateY(-2px); }
+    .btn-yellow-full { background: var(--yellow); color: var(--navy); box-shadow: 0 4px 16px rgba(250,204,21,0.35); }
+    .btn-navy-full   { background: var(--navy); color: var(--white); }
+    .btn-outline-full { background: transparent; color: var(--gray-500); border: 1.5px solid var(--gray-300) !important; font-size: 13px; }
+
+    /* 과목 전용 분석 항목 배지 */
+    .subj-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 700;
+      padding: 3px 9px; border-radius: 8px; margin-bottom: 12px;
+    }
+
+    .sbadge-kor { background: #ede9fe; color: var(--korean-color); }
+    .sbadge-mat { background: #e0f2fe; color: var(--math-color); }
+    .sbadge-eng { background: #d1fae5; color: var(--english-color); }
+
+    /* ===========================
+       애니메이션
+    =========================== */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-badge, .hero h1, .hero p, .hero-cta {
+      animation: fadeInUp 0.45s ease both;
+    }
+
+    .hero h1   { animation-delay: 0.08s; }
+    .hero p    { animation-delay: 0.16s; }
+    .hero-cta  { animation-delay: 0.24s; }
+
+    @media (min-width: 600px) {
+      .hero h1 { font-size: 36px; }
+      .feature-grid { display: grid; grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ===========================
+       [TAB 3] ⚡ 퀴즈 탭
+    =========================== */
+
+    /* 퀴즈 모드 선택 */
+    .quiz-mode-bar {
+      display: flex; gap: 10px; padding: 16px 20px 0;
+    }
+
+    .qmode-btn {
+      flex: 1; padding: 14px 8px; border-radius: 14px;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif;
+      border: 2px solid var(--gray-300);
+      background: var(--white); color: var(--gray-500);
+      transition: all 0.2s; text-align: center;
+    }
+
+    .qmode-btn .qm-emoji { font-size: 24px; display: block; margin-bottom: 4px; }
+    .qmode-btn.active-word  { border-color: var(--english-color); background: #d1fae5; color: #065f46; }
+    .qmode-btn.active-read  { border-color: var(--korean-color);  background: #ede9fe; color: #4c1d95; }
+
+    /* 퀴즈 컨텐츠 영역 */
+    .quiz-content { display: none; }
+    .quiz-content.active { display: block; }
+
+    /* ── 영어 단어 퀴즈 ── */
+    .word-quiz-wrap { padding: 20px; }
+
+    /* 진행 바 */
+    .quiz-prog-row {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+    }
+
+    .quiz-prog-track {
+      flex: 1; height: 8px; background: var(--gray-200);
+      border-radius: 8px; overflow: hidden;
+    }
+
+    .quiz-prog-fill {
+      height: 100%; border-radius: 8px;
+      background: var(--english-color);
+      transition: width 0.4s ease;
+    }
+
+    .quiz-prog-text {
+      font-size: 12px; font-weight: 700; color: var(--gray-500);
+      white-space: nowrap;
+    }
+
+    /* 단어 카드 */
+    .word-card {
+      background: linear-gradient(135deg, #064e3b, #065f46);
+      border-radius: 20px; padding: 32px 24px;
+      text-align: center; margin-bottom: 20px;
+      position: relative; overflow: hidden;
+      min-height: 180px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+
+    .word-card::before {
+      content: ''; position: absolute;
+      top: -30px; right: -30px; width: 120px; height: 120px;
+      background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .word-eng {
+      font-size: 34px; font-weight: 900; color: var(--white);
+      letter-spacing: -1px; margin-bottom: 6px;
+    }
+
+    .word-hint {
+      font-size: 13px; color: rgba(255,255,255,0.55);
+      margin-bottom: 10px;
+    }
+
+    .word-flip-btn {
+      background: rgba(255,255,255,0.15); border: none;
+      border-radius: 20px; padding: 8px 20px;
+      font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.8);
+      cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .word-meaning {
+      display: none; margin-top: 14px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 12px; padding: 14px 18px;
+      width: 100%;
+    }
+
+    .word-meaning.show { display: block; }
+
+    .wm-kor  { font-size: 20px; font-weight: 900; color: #6ee7b7; margin-bottom: 4px; }
+    .wm-ex   { font-size: 12px; color: rgba(255,255,255,0.65); line-height: 1.6; }
+    .wm-ex em { color: #6ee7b7; font-style: normal; font-weight: 700; }
+
+    /* 선지 버튼 */
+    .choice-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 10px; margin-bottom: 16px;
+    }
+
+    .choice-btn {
+      padding: 14px 10px; border-radius: 13px;
+      font-size: 14px; font-weight: 700;
+      border: 2px solid var(--gray-300);
+      background: var(--white); color: var(--navy);
+      cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+      transition: all 0.15s; text-align: center;
+    }
+
+    .choice-btn:hover { border-color: var(--english-color); background: #d1fae5; }
+    .choice-btn.correct { border-color: var(--green); background: #dcfce7; color: #166534; }
+    .choice-btn.wrong   { border-color: var(--red);   background: #fee2e2; color: #991b1b; }
+    .choice-btn:disabled { cursor: not-allowed; }
+
+    /* 결과 피드백 */
+    .quiz-feedback {
+      display: none; border-radius: 13px; padding: 14px 16px;
+      margin-bottom: 16px; text-align: center;
+    }
+
+    .quiz-feedback.show { display: block; }
+    .quiz-feedback.ok  { background: #dcfce7; border: 1.5px solid #86efac; }
+    .quiz-feedback.bad { background: #fee2e2; border: 1.5px solid #fca5a5; }
+
+    .qf-emoji { font-size: 28px; }
+    .qf-text  { font-size: 14px; font-weight: 700; margin-top: 4px; }
+    .qf-sub   { font-size: 12px; color: var(--gray-500); margin-top: 2px; }
+    .quiz-feedback.ok  .qf-text { color: #166534; }
+    .quiz-feedback.bad .qf-text { color: #991b1b; }
+
+    /* 다음 버튼 */
+    .quiz-next-btn {
+      width: 100%; padding: 15px; border-radius: 13px;
+      background: var(--english-color); color: var(--white);
+      border: none; font-size: 16px; font-weight: 900;
+      cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+      display: none; transition: transform 0.15s;
+    }
+
+    .quiz-next-btn.show { display: block; }
+    .quiz-next-btn:hover { transform: translateY(-2px); }
+
+    /* 퀴즈 결과 화면 */
+    .quiz-result-wrap {
+      display: none; padding: 20px; text-align: center;
+    }
+
+    .quiz-result-wrap.show { display: block; }
+
+    .qr-circle {
+      width: 100px; height: 100px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--english-color), #059669);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+      box-shadow: 0 8px 24px rgba(16,185,129,0.35);
+    }
+
+    .qr-score { font-size: 32px; font-weight: 900; color: var(--white); line-height: 1; }
+    .qr-total { font-size: 13px; color: rgba(255,255,255,0.75); }
+
+    .qr-title { font-size: 20px; font-weight: 900; color: var(--navy); margin-bottom: 6px; }
+    .qr-sub   { font-size: 13px; color: var(--gray-500); margin-bottom: 24px; }
+
+    .qr-stats {
+      display: flex; gap: 10px; margin-bottom: 20px;
+    }
+
+    .qrs-card {
+      flex: 1; background: var(--white); border-radius: 13px;
+      padding: 14px 10px; text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .qrs-card .qrs-val { font-size: 22px; font-weight: 900; color: var(--navy); }
+    .qrs-card .qrs-lbl { font-size: 11px; color: var(--gray-500); margin-top: 2px; }
+
+    .quiz-retry-btn {
+      width: 100%; padding: 15px; border-radius: 13px;
+      background: var(--navy); color: var(--white);
+      border: none; font-size: 16px; font-weight: 900;
+      cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    /* ── 국어 1문단 독해 퀴즈 ── */
+    .read-quiz-wrap { padding: 20px; }
+
+    /* 지문 카드 */
+    .passage-card {
+      background: var(--white); border-radius: 16px;
+      padding: 20px; margin-bottom: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      border-left: 4px solid var(--korean-color);
+    }
+
+    .passage-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--korean-color); letter-spacing: 0.8px;
+      margin-bottom: 10px; text-transform: uppercase;
+    }
+
+    .passage-timer-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .ptimer {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 700;
+    }
+
+    .ptimer-val { color: var(--korean-color); font-size: 16px; }
+    .ptimer-val.urgent { color: var(--red); animation: pulse 0.5s infinite; }
+
+    .passage-text {
+      font-size: 14px; line-height: 2;
+      color: var(--gray-700);
+    }
+
+    .passage-text .hl-word {
+      background: #ede9fe; border-radius: 3px;
+      padding: 0 2px; color: var(--korean-color); font-weight: 700;
+    }
+
+    /* 독해 문제 */
+    .read-question {
+      background: var(--white); border-radius: 16px;
+      padding: 18px; margin-bottom: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .rq-num {
+      font-size: 11px; font-weight: 700;
+      color: var(--korean-color); margin-bottom: 8px;
+    }
+
+    .rq-text {
+      font-size: 14px; font-weight: 700; color: var(--navy);
+      margin-bottom: 14px; line-height: 1.6;
+    }
+
+    .rq-choices { display: flex; flex-direction: column; gap: 8px; }
+
+    .rq-choice {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px 14px; border-radius: 11px;
+      border: 1.5px solid var(--gray-300);
+      background: var(--white); cursor: pointer;
+      font-size: 13px; color: var(--gray-700);
+      transition: all 0.15s; text-align: left;
+      font-family: 'Noto Sans KR', sans-serif; line-height: 1.5;
+    }
+
+    .rq-choice:hover { border-color: var(--korean-color); background: #ede9fe; }
+    .rq-choice.correct { border-color: var(--green); background: #dcfce7; color: #166534; font-weight: 700; }
+    .rq-choice.wrong   { border-color: var(--red);   background: #fee2e2; color: #991b1b; }
+    .rq-choice:disabled { cursor: not-allowed; }
+
+    .rq-no {
+      font-size: 13px; font-weight: 900;
+      color: var(--korean-color); flex-shrink: 0; min-width: 18px;
+    }
+
+    .rq-choice.correct .rq-no { color: #166534; }
+    .rq-choice.wrong   .rq-no { color: #991b1b; }
+
+    /* 독해 해설 */
+    .read-explanation {
+      display: none; background: #ede9fe;
+      border: 1.5px solid #c4b5fd; border-radius: 13px;
+      padding: 16px; margin-bottom: 14px;
+    }
+
+    .read-explanation.show { display: block; }
+    .re-title { font-size: 13px; font-weight: 700; color: var(--korean-color); margin-bottom: 6px; }
+    .re-text  { font-size: 12px; color: #4c1d95; line-height: 1.7; }
+
+    /* 지문 세트 네비게이션 */
+    .passage-nav {
+      display: flex; gap: 8px; margin-bottom: 20px;
+    }
+
+    .pnav-dot {
+      flex: 1; height: 6px; border-radius: 6px;
+      background: var(--gray-200); transition: background 0.3s;
+    }
+
+    .pnav-dot.done    { background: var(--green); }
+    .pnav-dot.current { background: var(--korean-color); }
+
+    /* 퀴즈 공통 스트릭 바 */
+    .streak-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 20px; background: var(--white);
+      border-bottom: 1px solid var(--gray-300);
+    }
+
+    .streak-icon { font-size: 18px; }
+    .streak-text { font-size: 13px; font-weight: 700; color: var(--navy); }
+    .streak-dots { display: flex; gap: 4px; margin-left: auto; }
+
+    .streak-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--gray-200);
+    }
+
+    .streak-dot.hit { background: var(--yellow); }
+  </style>
+</head>
+<body>
+
+  <!-- ========================= 공통 헤더 ========================= -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z" fill="#2dd4bf"/>
+        </svg>
+      </div>
+      <span class="logo-text">빠<span>독</span></span>
+    </div>
+    <div class="header-right">
+      <!-- 과목 선택 드롭다운 -->
+      <div class="subject-selector">
+        <button class="subject-btn" id="subjectBtn" onclick="toggleDropdown()">
+          <span class="s-dot" id="subjectDot"></span>
+          <span id="subjectLabel">국어</span> ▾
+        </button>
+        <div class="subject-dropdown" id="subjectDropdown">
+          <div class="subject-option active" onclick="selectSubject('korean','📖 국어','#6366f1',this)">
+            <span class="opt-dot" style="background:#6366f1"></span> 📖 국어
+          </div>
+          <div class="subject-option" onclick="selectSubject('math','📐 수학','#0ea5e9',this)">
+            <span class="opt-dot" style="background:#0ea5e9"></span> 📐 수학
+          </div>
+          <div class="subject-option" onclick="selectSubject('english','🌏 영어','#10b981',this)">
+            <span class="opt-dot" style="background:#10b981"></span> 🌏 영어
+          </div>
+        </div>
+      </div>
+      <button class="header-btn" onclick="switchTab('tab-tutor'); switchNavItem(1)">시작하기</button>
+    </div>
+  </header>
+
+  <!-- ========================= TAB 1: 홈 ========================= -->
+  <div class="tab-view active" id="tab-home">
+
+    <!-- 히어로 -->
+    <section class="hero korean" id="heroSection">
+      <div class="hero-badge" id="heroBadge">⚡ 국어 지문 속독 트레이닝</div>
+      <h1 id="heroTitle">긴 지문도<br><span class="hl">2배 빠르게</span><br>읽을 수 있어</h1>
+      <p id="heroDesc">수능·내신 국어 지문, 왜 이렇게 긴 걸까?<br>빠독이 핵심만 쏙 뽑아주고 읽는 속도를 직접 키워줄게.</p>
+      <div class="hero-cta">
+        <button class="btn-primary" onclick="switchTab('tab-tutor'); switchNavItem(1)">📷 지금 내 답안 분석받기</button>
+        <button class="btn-ghost">미리 체험해보기</button>
+      </div>
+    </section>
+
+    <!-- 과목 탭 카드 -->
+    <div class="subject-tabs">
+      <div class="subj-card active-subj" id="home-kor" onclick="setHomeSubject('korean')">
+        <div class="sc-emoji">📖</div>
+        <div class="sc-name">국어</div>
+        <div class="sc-tag tag-korean">독해·속독</div>
+      </div>
+      <div class="subj-card" id="home-mat" onclick="setHomeSubject('math')">
+        <div class="sc-emoji">📐</div>
+        <div class="sc-name">수학</div>
+        <div class="sc-tag tag-math">풀이·오답</div>
+      </div>
+      <div class="subj-card" id="home-eng" onclick="setHomeSubject('english')">
+        <div class="sc-emoji">🌏</div>
+        <div class="sc-name">영어</div>
+        <div class="sc-tag tag-english">독해·어휘</div>
+      </div>
+    </div>
+
+    <!-- 통계 바 -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-num" id="statNum1">2.1<span>배</span></div>
+        <div class="stat-label" id="statLabel1">평균 속도 향상</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">4.8<span>★</span></div>
+        <div class="stat-label">학생 만족도</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">12<span>만+</span></div>
+        <div class="stat-label">이용 학생</div>
+      </div>
+    </div>
+
+    <!-- ===== 국어 컨텐츠 ===== -->
+    <div class="subj-content active" id="content-korean">
+      <section class="section">
+        <p class="section-title">빠독의 국어 해결법</p>
+        <p class="section-sub">긴 지문도 4가지 방법으로 빠르게</p>
+        <div class="feature-grid">
+          <div class="feature-card active">
+            <div class="feat-icon" style="background:#e0f2fe">🔍</div>
+            <div class="feat-info">
+              <div class="feat-title">문단 분리 읽기</div>
+              <div class="feat-desc">지문을 의미 단위로 쪼개 한 덩어리씩 집중</div>
+            </div>
+            <div class="feat-badge">핵심</div>
+          </div>
+          <div class="feature-card">
+            <div class="feat-icon" style="background:#f0fdf4">✨</div>
+            <div class="feat-info">
+              <div class="feat-title">핵심 문장 하이라이트</div>
+              <div class="feat-desc">AI가 중요한 문장만 골라서 먼저 보여줘</div>
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feat-icon" style="background:#fdf4ff">⏱️</div>
+            <div class="feat-info">
+              <div class="feat-title">속독 타이머 훈련</div>
+              <div class="feat-desc">매일 5분, 읽기 속도를 기록하고 키워</div>
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feat-icon" style="background:#fff7ed">🗺️</div>
+            <div class="feat-info">
+              <div class="feat-title">지문 구조 지도</div>
+              <div class="feat-desc">전체 흐름을 한눈에 보는 마인드맵 요약</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="demo-section" style="margin-top:20px;">
+        <p class="section-title">실제로 이렇게 보여줘</p>
+        <p class="section-sub">문단별로 집중해서 읽어봐</p>
+        <div class="demo-card">
+          <div class="demo-label">📄 문단 ① / 3</div>
+          <div class="demo-para active-para">
+            현대 사회에서 정보는 <span class="key-s">권력의 원천이 되었다.</span>
+            과거에는 토지나 자본이 권력을 결정했지만, 오늘날에는
+            누가 더 많은 정보를 빠르게 처리하느냐가 중요해졌다.
+          </div>
+          <div class="demo-para" style="opacity:0.5">
+            이에 따라 정보 격차, 즉 디지털 디바이드 현상이
+            새로운 사회 불평등의 원인으로 떠오르고 있다...
+          </div>
+          <div class="demo-chips">
+            <button class="chip chip-mint">✅ 이해했어, 다음 문단</button>
+            <button class="chip chip-line">🔑 핵심만 보기</button>
+            <button class="chip chip-line">🗺️ 구조 보기</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== 수학 컨텐츠 ===== -->
+    <div class="subj-content" id="content-math">
+      <section class="section">
+        <p class="section-title">빠독의 수학 해결법</p>
+        <p class="section-sub">풀이 습관부터 오답 패턴까지 분석해줘</p>
+        <div class="feature-grid">
+          <div class="feature-card active">
+            <div class="feat-icon" style="background:#e0f2fe">📐</div>
+            <div class="feat-info">
+              <div class="feat-title">풀이 단계 분석</div>
+              <div class="feat-desc">어느 단계에서 막혔는지 사진으로 분석</div>
+            </div>
+            <div class="feat-badge">핵심</div>
+          </div>
+          <div class="feature-card">
+            <div class="feat-icon" style="background:#f0fdf4">🧮</div>
+            <div class="feat-info">
+              <div class="feat-title">계산 실수 탐지</div>
+              <div class="feat-desc">부호 오류·연산 실수를 자동으로 잡아줘</div>
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feat-icon" style="background:#fdf4ff">🔄</div>
+            <div class="feat-info">
+              <div class="feat-title">개념 연결 지도</div>
+              <div class="feat-desc">틀린 문제와 연결된 핵심 개념을 알려줘</div>
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feat-icon" style="background:#fff7ed">⏱️</div>
+            <div class="feat-info">
+              <div class="feat-title">시간 단축 루트</div>
+              <div class="feat-desc">더 빠른 풀이법을 선생님처럼 제안해줘</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" style="padding-bottom:24px;">
+        <p class="section-title">실제로 이렇게 분석해줘</p>
+        <p class="section-sub">풀이 흔적을 보고 딱 짚어줘</p>
+        <div class="math-demo-card">
+          <div class="math-problem">📌 문제: 이차방정식 x² - 5x + 6 = 0을 풀어라</div>
+          <div class="math-steps">
+            <div class="math-step">
+              <div class="ms-num">1</div>
+              <div class="ms-text">인수분해 시도: (x - <span class="wrong">3</span>)(x - <span class="wrong">2</span>) → ✓ 맞는 접근</div>
+            </div>
+            <div class="math-step">
+              <div class="ms-num">2</div>
+              <div class="ms-text">x = <span class="wrong">-3, -2</span> → ❌ 부호 실수! 정답은 <span class="correct">x = 3, 2</span></div>
+            </div>
+            <div class="math-step">
+              <div class="ms-num">🧑‍🏫</div>
+              <div class="ms-text" style="color:#0369a1; font-weight:700;">인수분해 후 부호 확인 루틴을 만들어봐. 최종 검산까지 습관화하면 돼.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== 영어 컨텐츠 ===== -->
+    <div class="subj-content" id="content-english">
+      <section class="section">
+        <p class="section-title">빠독의 영어 해결법</p>
+        <p class="section-sub">독해부터 어휘·문법까지 한 번에</p>
+        <div class="feature-grid">
+          <div class="feature-card active">
+            <div class="feat-icon" style="background:#d1fae5">📝</div>
+            <div class="feat-info">
+              <div class="feat-title">문장 구조 분석</div>
+              <div class="feat-desc">주어·동사·목적어를 색깔로 구분해줘</div>
+            </div>
+            <div class="feat-badge">핵심</div>
+          </div>
+          <div class="feature-card">
+            <div class="feat-icon" style="background:#fdf4ff">📚</div>
+            <div class="feat-info">
+              <div class="feat-title">모르는 단어 즉시 분석</div>
+              <div class="feat-desc">단어 맥락과 어원까지 함께 알려줘</div>
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feat-icon" style="background:#fef9c3">🎯</div>
+            <div class="feat-info">
+              <div class="feat-title">빈출 구문 패턴 훈련</div>
+              <div class="feat-desc">수능 자주 나오는 구문 패턴 집중 반복</div>
+            </div>
+          </div>
+          <div class="feature-card">
+            <div class="feat-icon" style="background:#e0f2fe">🔊</div>
+            <div class="feat-info">
+              <div class="feat-title">듣기 스크립트 분석</div>
+              <div class="feat-desc">틀린 듣기 문항 스크립트로 약점 찾기</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" style="padding-bottom:24px;">
+        <p class="section-title">실제로 이렇게 분석해줘</p>
+        <p class="section-sub">영어 지문의 핵심 구조를 잡아줘</p>
+        <div class="eng-card">
+          <div class="eng-sentence">
+            The key to solving the problem lies in
+            <span class="eng-hl">understanding the context</span>,
+            which <span class="eng-err">allow</span> us to make better decisions.
+          </div>
+          <div class="error-tip">
+            <strong>📌 문법 오류:</strong> 관계절의 주어는 "which(= context)"로 단수 → <strong style="color:var(--green)">allows</strong>로 고쳐야 해.
+          </div>
+          <div class="vocab-chip-row">
+            <div class="vocab-chip">context 맥락</div>
+            <div class="vocab-chip">lie in ~에 있다</div>
+            <div class="vocab-chip">decision 결정</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 학습 단계 -->
+    <section class="steps-section">
+      <p class="section-title">딱 3단계로 끝내</p>
+      <p class="section-sub">매일 10분이면 충분해</p>
+      <div class="step-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">과목 선택 & 오늘의 문제 받기</div>
+            <div class="step-desc">국어·수학·영어 중 골라서<br>내 수준에 맞는 문제 자동 추천</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">답안 사진 찍기</div>
+            <div class="step-desc">풀어놓은 답안지를 AI 과외 선생님에게<br>사진 한 장으로 제출</div>
+          </div>
+        </div>
+        <div class="step-item" style="padding-bottom:0">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">오답 분석 & 맞춤 처방 받기</div>
+            <div class="step-desc">틀린 이유, 시간 낭비 구간, 이번 주<br>처방까지 선생님처럼 알려줘</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 하단 CTA -->
+    <section class="bottom-cta">
+      <h2>지금 시작하면<br>다음 시험이 달라져</h2>
+      <p>무료로 7일 체험 · 신용카드 불필요</p>
+      <button class="btn-dark" onclick="switchTab('tab-tutor'); switchNavItem(1)">🚀 AI 과외 선생님 시작하기</button>
+    </section>
+
+  </div><!-- /tab-home -->
+
+
+  <!-- ========================= TAB 2: AI 과외 선생님 ========================= -->
+  <div class="tab-view" id="tab-tutor">
+
+    <!-- 과목 선택 바 -->
+    <div class="tutor-subject-bar">
+      <button class="tsb-btn active-kor" id="tsb-kor" onclick="selectTutorSubject('korean')">📖 국어</button>
+      <button class="tsb-btn" id="tsb-mat" onclick="selectTutorSubject('math')">📐 수학</button>
+      <button class="tsb-btn" id="tsb-eng" onclick="selectTutorSubject('english')">🌏 영어</button>
+    </div>
+
+    <!-- STEP 1: 업로드 -->
+    <div class="tutor-page active" id="page-upload">
+      <div class="step-indicator">
+        <div class="si-item"><div class="si-dot curr">1</div><div class="si-label curr">사진 업로드</div></div>
+        <div class="si-line"></div>
+        <div class="si-item"><div class="si-dot">2</div><div class="si-label">AI 분석 중</div></div>
+        <div class="si-line"></div>
+        <div class="si-item"><div class="si-dot">3</div><div class="si-label">결과 리포트</div></div>
+      </div>
+
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" accept="image/*" capture="environment" />
+        <div class="upload-icon">📷</div>
+        <h3 id="uploadTitle">국어 답안지 사진을 올려줘</h3>
+        <p>내가 풀어놓은 문제지를<br>카메라로 찍거나 갤러리에서 선택해</p>
+        <span class="upload-hint">JPG · PNG · HEIC 모두 가능</span>
+      </div>
+
+      <div class="preview-wrap" id="previewWrap">
+        <img id="previewImg" src="" alt="미리보기" />
+        <button class="preview-remove" id="previewRemove">✕</button>
+      </div>
+
+      <div style="padding:14px 20px 0;">
+        <p style="font-size:11px;font-weight:700;letter-spacing:0.8px;color:var(--gray-500);text-transform:uppercase;margin-bottom:10px;">
+          📌 문제 유형 선택 (복수 가능)
+        </p>
+      </div>
+
+      <!-- 국어 유형 -->
+      <div class="type-chips" id="chips-korean">
+        <button class="type-chip selected">📖 독서(비문학)</button>
+        <button class="type-chip">✒️ 문학</button>
+        <button class="type-chip">🗣️ 화법·작문</button>
+        <button class="type-chip">📡 언어·매체</button>
+      </div>
+
+      <!-- 수학 유형 -->
+      <div class="type-chips" id="chips-math" style="display:none">
+        <button class="type-chip selected">📐 수와 연산</button>
+        <button class="type-chip">📈 함수</button>
+        <button class="type-chip">🔺 도형</button>
+        <button class="type-chip">📊 확률·통계</button>
+        <button class="type-chip">∑ 수열·극한</button>
+      </div>
+
+      <!-- 영어 유형 -->
+      <div class="type-chips" id="chips-english" style="display:none">
+        <button class="type-chip selected">📝 독해</button>
+        <button class="type-chip">📚 어휘</button>
+        <button class="type-chip">✏️ 문법</button>
+        <button class="type-chip">🔊 듣기</button>
+        <button class="type-chip">✍️ 영작</button>
+      </div>
+
+      <div class="tip-box">
+        <div class="tip-icon">💡</div>
+        <p id="tipText">글씨가 잘 보이게 밝은 곳에서 찍어줘.<br>답을 고친 흔적도 그대로 찍는 게 더 정확해.</p>
+      </div>
+
+      <button class="analyze-btn" id="analyzeBtn" disabled>
+        <span>🔍</span> <span id="analyzeBtnText">AI 분석 시작하기</span>
+      </button>
+    </div><!-- /page-upload -->
+
+    <!-- STEP 2: 분석 중 -->
+    <div class="tutor-page" id="page-loading">
+      <div class="analyzing-wrap">
+        <div class="spinner-ring"></div>
+        <h2>분석하고 있어...</h2>
+        <p>선생님이 꼼꼼하게<br>답안을 살펴보는 중이야.</p>
+      </div>
+      <div class="analysis-steps">
+        <div class="a-step">
+          <div class="a-step-icon loading" id="astep1">🔍</div>
+          <div class="a-step-label" id="alabel1">문자 인식 (OCR)</div>
+          <div class="a-step-status status-loading" id="astatus1">분석 중...</div>
+        </div>
+        <div class="a-step">
+          <div class="a-step-icon pending" id="astep2">❌</div>
+          <div class="a-step-label pending" id="alabel2">오답 패턴 분류</div>
+          <div class="a-step-status status-wait" id="astatus2">대기 중</div>
+        </div>
+        <div class="a-step">
+          <div class="a-step-icon pending" id="astep3">⏱️</div>
+          <div class="a-step-label pending" id="alabel3">시간 낭비 구간 분석</div>
+          <div class="a-step-status status-wait" id="astatus3">대기 중</div>
+        </div>
+        <div class="a-step">
+          <div class="a-step-icon pending" id="astep4">📋</div>
+          <div class="a-step-label pending" id="alabel4">맞춤 처방 생성</div>
+          <div class="a-step-status status-wait" id="astatus4">대기 중</div>
+        </div>
+      </div>
+    </div><!-- /page-loading -->
+
+    <!-- STEP 3: 결과 리포트 -->
+    <div class="tutor-page" id="page-result">
+
+      <div class="result-hero">
+        <div class="result-hero-top">
+          <div class="tutor-avatar">🧑‍🏫</div>
+          <div class="tutor-intro">
+            <small>AI 과외 선생님의 총평</small>
+            <strong id="resultSubjectLabel">국어 답안 분석 결과야</strong>
+          </div>
+        </div>
+        <div class="result-comment" id="resultComment">
+          지문 이해는 잘 되고 있어. 근데 3번, 7번은 선지 함정에 걸렸고,
+          12번은 지문 읽는 시간이 너무 길었어.
+          <strong style="color:#fde68a;">핵심 문장 먼저 찾는 습관</strong>을 들이면
+          다음 시험에서 2~3문제는 더 맞출 수 있어.
+        </div>
+      </div>
+
+      <div class="score-row">
+        <div class="score-card">
+          <div class="sc-icon">❌</div>
+          <div class="sc-num red" id="scoreWrong">3</div>
+          <div class="sc-label">오답 문항</div>
+        </div>
+        <div class="score-card">
+          <div class="sc-icon">⏱️</div>
+          <div class="sc-num orange" id="scoreTime">+4분</div>
+          <div class="sc-label">초과 시간</div>
+        </div>
+        <div class="score-card">
+          <div class="sc-icon">📈</div>
+          <div class="sc-num green" id="scoreGrowth">↑12%</div>
+          <div class="sc-label">지난주 대비</div>
+        </div>
+      </div>
+
+      <!-- 오답 분석 -->
+      <div class="result-section" id="resultErrors">
+        <div class="result-section-title">🔴 오답 분석</div>
+        <!-- JS로 과목별 렌더링 -->
+      </div>
+
+      <!-- 시간 분석 -->
+      <div class="result-section">
+        <div class="result-section-title">⏱️ 시간 사용 분석</div>
+        <div class="time-analysis">
+          <div class="time-analysis-title">📊 구간별 소요 시간</div>
+          <div id="timeBars"><!-- JS 렌더링 --></div>
+          <div class="error-tip" style="margin-top:12px;">
+            <strong>💡 선생님 코멘트:</strong> <span id="timeComment">가장 오래 걸린 구간에 집중 훈련이 필요해.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 처방 -->
+      <div class="result-section">
+        <div class="result-section-title">📋 이번 주 맞춤 처방</div>
+        <div class="prescription-card">
+          <div class="pc-header">
+            <div class="pc-icon">💊</div>
+            <div>
+              <div class="pc-title">선생님이 골라준 3가지 훈련</div>
+              <div class="pc-sub">매일 10~15분이면 충분해</div>
+            </div>
+          </div>
+          <div class="prescription-list" id="prescriptionList">
+            <!-- JS 렌더링 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 주간 차트 -->
+      <div class="result-section">
+        <div class="result-section-title">📈 이번 주 성장 기록</div>
+        <div class="weekly-preview">
+          <div class="wp-title">📅 오답 수 변화 (최근 7일)</div>
+          <div class="mini-chart" id="miniChart"></div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.55);text-align:center;">
+            지난주 평균 대비 오답 <span style="color:#86efac;font-weight:700;">12% 감소</span> 했어 👏
+          </div>
+        </div>
+      </div>
+
+      <!-- 액션 버튼 -->
+      <div class="result-actions">
+        <button class="btn-full btn-yellow-full" onclick="resetTutor()">📷 다른 답안 또 분석하기</button>
+        <button class="btn-full btn-navy-full" onclick="switchTab('tab-home'); switchNavItem(0)">🏠 홈으로 돌아가기</button>
+        <button class="btn-full btn-outline-full">📤 결과 저장·공유하기</button>
+      </div>
+
+    </div><!-- /page-result -->
+  </div><!-- /tab-tutor -->
+
+
+  <!-- ========================= TAB 3: ⚡ 퀴즈 ========================= -->
+  <div class="tab-view" id="tab-quiz">
+
+    <!-- 스트릭 바 -->
+    <div class="streak-bar">
+      <span class="streak-icon">🔥</span>
+      <span class="streak-text">오늘 연속 정답 <span id="streakCount">0</span>개</span>
+      <div class="streak-dots" id="streakDots"></div>
+    </div>
+
+    <!-- 모드 선택 -->
+    <div class="quiz-mode-bar">
+      <button class="qmode-btn active-word" id="qmodeWord" onclick="setQuizMode('word')">
+        <span class="qm-emoji">🇬🇧</span>영어 단어 퀴즈
+      </button>
+      <button class="qmode-btn" id="qmodeRead" onclick="setQuizMode('read')">
+        <span class="qm-emoji">📖</span>국어 독해 퀴즈
+      </button>
+    </div>
+
+    <!-- ══ 영어 단어 퀴즈 ══ -->
+    <div class="quiz-content active" id="quiz-word">
+
+      <!-- 진행 표시 -->
+      <div class="word-quiz-wrap">
+        <div class="quiz-prog-row">
+          <div class="quiz-prog-track">
+            <div class="quiz-prog-fill" id="wordProgFill" style="width:0%"></div>
+          </div>
+          <span class="quiz-prog-text" id="wordProgText">1 / 10</span>
+        </div>
+
+        <!-- 단어 카드 -->
+        <div class="word-card">
+          <div class="word-eng" id="wEng">ambiguous</div>
+          <div class="word-hint" id="wHint">형용사 · 수능 빈출</div>
+          <button class="word-flip-btn" onclick="flipWord()">💡 뜻 먼저 보기</button>
+          <div class="word-meaning" id="wMeaning">
+            <div class="wm-kor" id="wKor">모호한, 불분명한</div>
+            <div class="wm-ex" id="wEx">The <em>ambiguous</em> statement confused everyone.</div>
+          </div>
+        </div>
+
+        <!-- 선지 -->
+        <div class="choice-grid" id="wordChoices"></div>
+
+        <!-- 피드백 -->
+        <div class="quiz-feedback" id="wordFeedback">
+          <div class="qf-emoji" id="wfEmoji">✅</div>
+          <div class="qf-text" id="wfText">정답이야!</div>
+          <div class="qf-sub"  id="wfSub"></div>
+        </div>
+
+        <!-- 다음 버튼 -->
+        <button class="quiz-next-btn" id="wordNextBtn" onclick="nextWord()">다음 단어 →</button>
+      </div>
+
+      <!-- 결과 화면 -->
+      <div class="quiz-result-wrap" id="wordResultWrap">
+        <div class="qr-circle">
+          <div class="qr-score" id="wordScoreNum">0</div>
+          <div class="qr-total">/ 10</div>
+        </div>
+        <div class="qr-title" id="wordResultTitle">오늘도 수고했어!</div>
+        <div class="qr-sub"   id="wordResultSub">틀린 단어를 다시 복습해봐</div>
+        <div class="qr-stats">
+          <div class="qrs-card">
+            <div class="qrs-val" id="wordCorrectNum" style="color:var(--green)">0</div>
+            <div class="qrs-lbl">정답</div>
+          </div>
+          <div class="qrs-card">
+            <div class="qrs-val" id="wordWrongNum" style="color:var(--red)">0</div>
+            <div class="qrs-lbl">오답</div>
+          </div>
+          <div class="qrs-card">
+            <div class="qrs-val" id="wordTimeNum" style="color:var(--orange)">0초</div>
+            <div class="qrs-lbl">총 소요 시간</div>
+          </div>
+        </div>
+        <button class="quiz-retry-btn" onclick="startWordQuiz()">🔄 다시 풀기</button>
+      </div>
+    </div><!-- /quiz-word -->
+
+    <!-- ══ 국어 독해 퀴즈 ══ -->
+    <div class="quiz-content" id="quiz-read">
+      <div class="read-quiz-wrap">
+
+        <!-- 지문 세트 진행 점 -->
+        <div class="passage-nav" id="passageNav"></div>
+
+        <!-- 지문 카드 -->
+        <div class="passage-card">
+          <div class="passage-label">📄 오늘의 지문</div>
+          <div class="passage-timer-row">
+            <div class="ptimer">⏱ 읽기 제한 <span class="ptimer-val" id="readTimer">60</span>초</div>
+            <span style="font-size:11px;color:var(--gray-500)" id="passageCategory">비문학 · 사회</span>
+          </div>
+          <div class="passage-text" id="passageText"></div>
+        </div>
+
+        <!-- 문제 -->
+        <div class="read-question" id="readQuestion">
+          <div class="rq-num" id="rqNum">문제 1</div>
+          <div class="rq-text" id="rqText"></div>
+          <div class="rq-choices" id="rqChoices"></div>
+        </div>
+
+        <!-- 해설 -->
+        <div class="read-explanation" id="readExplanation">
+          <div class="re-title">📌 해설</div>
+          <div class="re-text" id="reText"></div>
+        </div>
+
+        <!-- 다음 버튼 -->
+        <button class="quiz-next-btn" id="readNextBtn"
+                style="background:var(--korean-color)"
+                onclick="nextPassage()">다음 지문 →</button>
+
+        <!-- 독해 퀴즈 결과 -->
+        <div class="quiz-result-wrap" id="readResultWrap">
+          <div class="qr-circle" style="background:linear-gradient(135deg,var(--korean-color),#7c3aed)">
+            <div class="qr-score" id="readScoreNum">0</div>
+            <div class="qr-total">/ 5</div>
+          </div>
+          <div class="qr-title" id="readResultTitle">독해 퀴즈 완료!</div>
+          <div class="qr-sub"   id="readResultSub"></div>
+          <div class="qr-stats">
+            <div class="qrs-card">
+              <div class="qrs-val" id="readCorrectNum" style="color:var(--green)">0</div>
+              <div class="qrs-lbl">정답</div>
+            </div>
+            <div class="qrs-card">
+              <div class="qrs-val" id="readAvgTime" style="color:var(--orange)">0초</div>
+              <div class="qrs-lbl">평균 읽기 시간</div>
+            </div>
+          </div>
+          <button class="quiz-retry-btn"
+                  style="background:var(--korean-color);margin-bottom:10px"
+                  onclick="startReadQuiz()">🔄 다시 풀기</button>
+        </div>
+
+      </div>
+    </div><!-- /quiz-read -->
+
+  </div><!-- /tab-quiz -->
+
+
+  <!-- ========================= 하단 네비게이션 ========================= -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="nav-0" onclick="switchTab('tab-home'); switchNavItem(0)">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-label">홈</div>
+    </button>
+    <button class="nav-item" id="nav-1" onclick="switchTab('tab-tutor'); switchNavItem(1)">
+      <div class="nav-icon">🧑‍🏫</div>
+      <div class="nav-label">AI 과외</div>
+    </button>
+    <button class="nav-item" id="nav-2" onclick="switchTab('tab-quiz'); switchNavItem(2)">
+      <div class="nav-icon">⚡</div>
+      <div class="nav-label">퀴즈</div>
+    </button>
+    <button class="nav-item" id="nav-3">
+      <div class="nav-icon">📊</div>
+      <div class="nav-label">기록</div>
+    </button>
+    <button class="nav-item" id="nav-4">
+      <div class="nav-icon">👤</div>
+      <div class="nav-label">내 정보</div>
+    </button>
+  </nav>
+
+
+  <script>
+    /* =====================================================
+       상태
+    ===================================================== */
+    let currentSubject = 'korean'; // 'korean' | 'math' | 'english'
+
+    const SUBJECT_DATA = {
+      korean: {
+        label: '국어',
+        color: '#6366f1',
+        heroClass: 'korean',
+        heroBadge: '⚡ 국어 지문 속독 트레이닝',
+        heroTitle: '긴 지문도<br><span class="hl">2배 빠르게</span><br>읽을 수 있어',
+        heroDesc: '수능·내신 국어 지문, 왜 이렇게 긴 걸까?<br>빠독이 핵심만 쏙 뽑아주고 읽는 속도를 직접 키워줄게.',
+        uploadTitle: '국어 답안지 사진을 올려줘',
+        tipText: '글씨가 잘 보이게 밝은 곳에서 찍어줘.<br>답을 고친 흔적도 그대로 찍는 게 더 정확해.',
+        resultLabel: '국어 답안 분석 결과야',
+        resultComment: '지문 이해는 잘 되고 있어. 근데 3번, 7번은 선지 함정에 걸렸고, 12번은 지문 읽는 시간이 너무 길었어. <strong style="color:#fde68a;">핵심 문장 먼저 찾는 습관</strong>을 들이면 다음 시험에서 2~3문제는 더 맞출 수 있어.',
+        scoreWrong: '3', scoreTime: '+4분', scoreGrowth: '↑12%',
+        errors: [
+          { qnum:'3번', type:'선지 함정', typeClass:'tag-red', cardClass:'', title:'비슷해 보이는 선지에서 실수했어', desc:'③번과 ④번이 거의 비슷한 표현인데, 지문의 "반드시"라는 한정어를 놓쳐서 틀렸어.', tip:'선지 비교할 때 한정어(반드시·항상·모든)를 형광펜으로 표시하고 비교해.' },
+          { qnum:'7번', type:'추론 오류', typeClass:'tag-orange', cardClass:'warning', title:'지문에 없는 내용을 추론해서 틀렸어', desc:'지문에 직접 언급되지 않은 내용을 맞다고 골랐어. 국어 시험은 항상 "지문 근거"가 있어야 해.', tip:'정답 고를 때 "이 내용이 지문 몇 단락에 있지?"를 항상 확인하는 루틴 만들기.' },
+          { qnum:'12번', type:'시간 초과', typeClass:'tag-blue', cardClass:'info', title:'이 문항에서 시간을 너무 많이 썼어', desc:'평균 풀이 시간의 2.3배를 썼어. 지문을 처음부터 다시 읽으면서 시간이 늘어난 것 같아.', tip:'발문 → 키워드 → 지문 찾기 순서로 읽는 방식으로 바꿔봐.' },
+        ],
+        timeBars: [
+          { label:'1~5번', pct:45, val:'4.5분', cls:'fill-green' },
+          { label:'6~10번', pct:62, val:'6.2분', cls:'fill-yellow' },
+          { label:'11~15번', pct:88, val:'8.8분', cls:'fill-red' },
+          { label:'16~20번', pct:38, val:'3.8분', cls:'fill-green' },
+        ],
+        timeComment: '11~15번 구간이 유독 느려. 비문학 지문이 몰려있는 구간이니 문단 요약 훈련을 집중적으로 해봐.',
+        prescriptions: [
+          { title:'선지 비교 집중 훈련', desc:'비슷한 선지 2개 중 틀린 부분 찾기 연습 — 하루 5문제씩' },
+          { title:'발문 → 키워드 → 지문 찾기 루틴', desc:'문제 풀기 전 발문을 30초 읽고 키워드 2개 정하는 습관' },
+          { title:'비문학 문단 요약 속독 훈련', desc:'빠독 속독 모드에서 800자 이상 지문 매일 1편씩' },
+        ],
+      },
+      math: {
+        label: '수학',
+        color: '#0ea5e9',
+        heroClass: 'math',
+        heroBadge: '📐 수학 풀이 오답 분석',
+        heroTitle: '계산 실수를<br><span class="hl">AI가 딱</span><br>잡아줄게',
+        heroDesc: '풀이 흔적을 사진으로 찍으면<br>어느 단계에서 왜 틀렸는지 선생님처럼 알려줄게.',
+        uploadTitle: '수학 풀이 사진을 올려줘',
+        tipText: '풀이 과정을 지우지 말고 그대로 찍어줘.<br>어느 단계에서 막혔는지가 보여야 정확히 분석돼.',
+        resultLabel: '수학 답안 분석 결과야',
+        resultComment: '풀이 접근은 맞는데 계산 마지막 단계에서 부호 실수가 반복돼. <strong style="color:#fde68a;">최종 검산 루틴</strong>을 만들면 이런 실수 80%는 잡을 수 있어.',
+        scoreWrong: '4', scoreTime: '+6분', scoreGrowth: '↑8%',
+        errors: [
+          { qnum:'5번', type:'계산 실수', typeClass:'tag-red', cardClass:'', title:'부호 처리에서 반복 실수가 나왔어', desc:'음수를 대입할 때 괄호를 빠뜨려서 부호가 뒤집혔어. 수능에서 가장 흔한 실수야.', tip:'음수 대입할 때 항상 괄호 먼저 쓰는 습관 — (−3)² 처럼.' },
+          { qnum:'11번', type:'개념 혼동', typeClass:'tag-orange', cardClass:'warning', title:'등차수열과 등비수열 공식을 혼동했어', desc:'등차수열 공식 자리에 등비수열 공식을 썼어. 공식 정리가 필요해.', tip:'두 공식을 나란히 적고 차이를 외우는 비교 암기법을 써봐.' },
+          { qnum:'15번', type:'시간 초과', typeClass:'tag-blue', cardClass:'info', title:'이 문항에서 시간을 너무 많이 썼어', desc:'그래프 해석 단계에서 멈칫했어. 좌표 변환에 익숙해지면 빨라질 수 있어.', tip:'좌표 변환 문제를 유형별로 10문제씩 반복 훈련해봐.' },
+        ],
+        timeBars: [
+          { label:'1~5번', pct:40, val:'4.0분', cls:'fill-green' },
+          { label:'6~10번', pct:55, val:'5.5분', cls:'fill-green' },
+          { label:'11~15번', pct:90, val:'9.0분', cls:'fill-red' },
+          { label:'16~20번', pct:70, val:'7.0분', cls:'fill-yellow' },
+        ],
+        timeComment: '11~15번 고난도 구간에서 9분을 썼어. 쉬운 문제 먼저 풀고 고난도는 나중에 돌아오는 전략을 써봐.',
+        prescriptions: [
+          { title:'부호·계산 실수 체크리스트', desc:'풀이 끝나면 부호·괄호·대입값 3가지 반드시 검산' },
+          { title:'공식 비교 암기 훈련', desc:'헷갈리는 공식 2개씩 나란히 비교하며 외우기 — 하루 10분' },
+          { title:'고난도 문항 타임어택', desc:'15분 제한으로 고난도 1문제씩 매일 도전' },
+        ],
+      },
+      english: {
+        label: '영어',
+        color: '#10b981',
+        heroClass: 'english',
+        heroBadge: '🌏 영어 독해 & 어휘 분석',
+        heroTitle: '영어 지문도<br><span class="hl">구조부터</span><br>잡아줄게',
+        heroDesc: '문장 구조가 보이면 독해 속도가 달라져.<br>모르는 단어·문법 오류까지 한 번에 짚어줄게.',
+        uploadTitle: '영어 답안지 사진을 올려줘',
+        tipText: '밑줄 치거나 메모한 흔적도 같이 찍어줘.<br>어떤 부분에서 막혔는지 파악하는 데 도움이 돼.',
+        resultLabel: '영어 답안 분석 결과야',
+        resultComment: '독해 이해도는 좋은데 빈칸 추론 유형에서 주제문을 놓치는 패턴이 보여. <strong style="color:#fde68a;">첫 문장과 마지막 문장을 먼저 읽는 습관</strong>이 핵심이야.',
+        scoreWrong: '5', scoreTime: '+3분', scoreGrowth: '↑15%',
+        errors: [
+          { qnum:'22번', type:'주제 파악 실패', typeClass:'tag-red', cardClass:'', title:'지문 주제를 잘못 파악했어', desc:'첫 단락의 주제문을 지나쳐서 전체 흐름을 잘못 읽었어. 첫 문장·마지막 문장이 주제를 담고 있는 경우가 많아.', tip:'지문 읽기 전에 첫 문장·마지막 문장을 30초 먼저 읽어봐.' },
+          { qnum:'29번', type:'어휘 오류', typeClass:'tag-orange', cardClass:'warning', title:'유사 어휘를 혼동해서 틀렸어', desc:'contemplate(숙고하다)와 contempt(경멸)를 혼동했어. 어근이 같아 보여도 의미가 달라.', tip:'헷갈리는 단어 쌍을 카드로 만들어 매일 5쌍씩 비교 암기해.' },
+          { qnum:'33번', type:'시간 초과', typeClass:'tag-blue', cardClass:'info', title:'이 문항에서 시간을 너무 많이 썼어', desc:'장문 독해 지문에서 모르는 단어 때문에 읽다가 멈칫했어.', tip:'모르는 단어가 나와도 문맥으로 유추하고 넘어가는 훈련이 필요해.' },
+        ],
+        timeBars: [
+          { label:'1~17번', pct:38, val:'3.8분', cls:'fill-green' },
+          { label:'18~28번', pct:65, val:'6.5분', cls:'fill-yellow' },
+          { label:'29~34번', pct:82, val:'8.2분', cls:'fill-red' },
+          { label:'35~45번', pct:50, val:'5.0분', cls:'fill-green' },
+        ],
+        timeComment: '29~34번 장문 독해 구간에서 8분을 썼어. 모르는 단어에 멈추지 말고 문맥으로 넘기는 훈련을 해봐.',
+        prescriptions: [
+          { title:'주제문 먼저 읽기 루틴', desc:'지문 시작 전 첫 문장·마지막 문장 30초 먼저 읽기' },
+          { title:'헷갈리는 어휘 쌍 카드', desc:'유사 단어 쌍 5쌍씩 매일 비교 암기 — contemplate vs contempt' },
+          { title:'모르는 단어 문맥 추론 훈련', desc:'단어를 몰라도 문맥으로 뜻 유추하는 연습 — 하루 1지문' },
+        ],
+      },
+    };
+
+    /* =====================================================
+       탭 전환
+    ===================================================== */
+    function switchTab(id) {
+      document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function switchNavItem(idx) {
+      document.querySelectorAll('.nav-item').forEach((n, i) => {
+        n.classList.toggle('active', i === idx);
+      });
+    }
+
+    /* =====================================================
+       과목 전환 (공통)
+    ===================================================== */
+    function applySubject(subj) {
+      currentSubject = subj;
+      const d = SUBJECT_DATA[subj];
+
+      // 헤더 드롭다운 dot + label
+      document.getElementById('subjectDot').style.background = d.color;
+      document.getElementById('subjectLabel').textContent = d.label;
+
+      // 히어로 업데이트
+      const hero = document.getElementById('heroSection');
+      hero.className = 'hero ' + d.heroClass;
+      document.getElementById('heroBadge').textContent = d.heroBadge;
+      document.getElementById('heroTitle').innerHTML = d.heroTitle;
+      document.getElementById('heroDesc').innerHTML = d.heroDesc;
+    }
+
+    /* =====================================================
+       홈 과목 탭
+    ===================================================== */
+    function setHomeSubject(subj) {
+      applySubject(subj);
+
+      // 카드 active
+      ['korean','math','english'].forEach(s => {
+        document.getElementById('home-' + s.slice(0,3)).classList.toggle('active-subj', s === subj);
+      });
+
+      // 컨텐츠 전환
+      document.querySelectorAll('.subj-content').forEach(c => c.classList.remove('active'));
+      document.getElementById('content-' + subj).classList.add('active');
+
+      // 과외 탭 과목도 연동
+      selectTutorSubject(subj);
+    }
+
+    /* =====================================================
+       과외 탭 과목 선택
+    ===================================================== */
+    function selectTutorSubject(subj) {
+      currentSubject = subj;
+      applySubject(subj);
+      const d = SUBJECT_DATA[subj];
+
+      // 버튼 active
+      ['korean','math','english'].forEach(s => {
+        const btn = document.getElementById('tsb-' + s.slice(0,3));
+        btn.className = 'tsb-btn';
+        if (s === subj) {
+          btn.classList.add(s === 'korean' ? 'active-kor' : s === 'math' ? 'active-mat' : 'active-eng');
+        }
+      });
+
+      // 업로드 타이틀 & 팁 & 버튼 텍스트
+      document.getElementById('uploadTitle').textContent = d.uploadTitle;
+      document.getElementById('tipText').innerHTML = d.tipText;
+      document.getElementById('analyzeBtnText').textContent = d.label + ' AI 분석 시작하기';
+
+      // 유형 칩 전환
+      ['korean','math','english'].forEach(s => {
+        document.getElementById('chips-' + s).style.display = s === subj ? 'flex' : 'none';
+      });
+
+      // 업로드 상태 리셋
+      resetUploadUI();
+    }
+
+    /* =====================================================
+       헤더 드롭다운
+    ===================================================== */
+    function toggleDropdown() {
+      document.getElementById('subjectDropdown').classList.toggle('open');
+    }
+
+    function selectSubject(subj, labelFull, color, el) {
+      document.getElementById('subjectDropdown').classList.remove('open');
+      document.querySelectorAll('.subject-option').forEach(o => o.classList.remove('active'));
+      el.classList.add('active');
+      setHomeSubject(subj);
+    }
+
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.subject-selector')) {
+        document.getElementById('subjectDropdown').classList.remove('open');
+      }
+    });
+
+    /* =====================================================
+       파일 업로드
+    ===================================================== */
+    const fileInput    = document.getElementById('fileInput');
+    const uploadZone   = document.getElementById('uploadZone');
+    const previewWrap  = document.getElementById('previewWrap');
+    const previewImg   = document.getElementById('previewImg');
+    const previewRemove = document.getElementById('previewRemove');
+    const analyzeBtn   = document.getElementById('analyzeBtn');
+
+    fileInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      showPreview(URL.createObjectURL(file));
+    });
+
+    previewRemove.addEventListener('click', resetUploadUI);
+
+    uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+    uploadZone.addEventListener('drop', e => {
+      e.preventDefault(); uploadZone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) showPreview(URL.createObjectURL(file));
+    });
+
+    function showPreview(url) {
+      previewImg.src = url;
+      previewWrap.classList.add('visible');
+      uploadZone.style.display = 'none';
+      analyzeBtn.disabled = false;
+    }
+
+    function resetUploadUI() {
+      previewImg.src = '';
+      previewWrap.classList.remove('visible');
+      uploadZone.style.display = '';
+      fileInput.value = '';
+      analyzeBtn.disabled = true;
+    }
+
+    document.querySelectorAll('.type-chip').forEach(chip => {
+      chip.addEventListener('click', () => chip.classList.toggle('selected'));
+    });
+
+    /* =====================================================
+       분석 시뮬레이션
+    ===================================================== */
+    analyzeBtn.addEventListener('click', () => {
+      goToTutorPage('page-loading');
+      runAnalysis();
+    });
+
+    function goToTutorPage(id) {
+      document.querySelectorAll('.tutor-page').forEach(p => p.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function setStep(n, state) {
+      const icon   = document.getElementById('astep' + n);
+      const label  = document.getElementById('alabel' + n);
+      const status = document.getElementById('astatus' + n);
+      icon.className  = 'a-step-icon ' + state;
+      label.className = 'a-step-label' + (state === 'pending' ? ' pending' : '');
+      if (state === 'complete') { status.textContent = '완료 ✓'; status.className = 'a-step-status status-done'; }
+      else if (state === 'loading') { status.textContent = '분석 중...'; status.className = 'a-step-status status-loading'; }
+      else { status.textContent = '대기 중'; status.className = 'a-step-status status-wait'; }
+    }
+
+    function runAnalysis() {
+      [1,2,3,4].forEach(n => setStep(n, 'pending'));
+      setStep(1, 'loading');
+      setTimeout(() => { setStep(1,'complete'); setStep(2,'loading'); }, 1100);
+      setTimeout(() => { setStep(2,'complete'); setStep(3,'loading'); }, 2200);
+      setTimeout(() => { setStep(3,'complete'); setStep(4,'loading'); }, 3200);
+      setTimeout(() => { setStep(4,'complete'); }, 4100);
+      setTimeout(() => { renderResult(); goToTutorPage('page-result'); }, 4700);
+    }
+
+    /* =====================================================
+       과목별 결과 렌더링
+    ===================================================== */
+    function renderResult() {
+      const d = SUBJECT_DATA[currentSubject];
+
+      document.getElementById('resultSubjectLabel').textContent = d.resultLabel;
+      document.getElementById('resultComment').innerHTML = d.resultComment;
+      document.getElementById('scoreWrong').textContent = d.scoreWrong;
+      document.getElementById('scoreTime').textContent  = d.scoreTime;
+      document.getElementById('scoreGrowth').textContent = d.scoreGrowth;
+      document.getElementById('timeComment').textContent = d.timeComment;
+
+      // 오답 카드
+      const errWrap = document.getElementById('resultErrors');
+      errWrap.innerHTML = '<div class="result-section-title">🔴 오답 분석</div>';
+      d.errors.forEach(err => {
+        errWrap.innerHTML += `
+          <div class="error-card ${err.cardClass}">
+            <div class="error-card-top">
+              <span class="error-qnum">${err.qnum}</span>
+              <span class="error-type-tag ${err.typeClass}">${err.type}</span>
+            </div>
+            <div class="error-title">${err.title}</div>
+            <div class="error-desc">${err.desc}</div>
+            <div class="error-tip"><strong>💊 처방:</strong> ${err.tip}</div>
+          </div>`;
+      });
+
+      // 시간 바
+      const tbWrap = document.getElementById('timeBars');
+      tbWrap.innerHTML = '';
+      d.timeBars.forEach(bar => {
+        tbWrap.innerHTML += `
+          <div class="time-bar-row">
+            <div class="time-bar-label">${bar.label}</div>
+            <div class="time-bar-track"><div class="time-bar-fill ${bar.cls}" style="width:${bar.pct}%"></div></div>
+            <div class="time-bar-val">${bar.val}</div>
+          </div>`;
+      });
+
+      // 처방
+      const pWrap = document.getElementById('prescriptionList');
+      pWrap.innerHTML = '';
+      d.prescriptions.forEach((p, i) => {
+        pWrap.innerHTML += `
+          <div class="prescription-item">
+            <div class="pi-num">${i+1}</div>
+            <div class="pi-text"><strong>${p.title}</strong><br>${p.desc}</div>
+          </div>`;
+      });
+
+      // 미니 차트
+      renderMiniChart();
+    }
+
+    function renderMiniChart() {
+      const data = [
+        {day:'월',val:7},{day:'화',val:6},{day:'수',val:8},
+        {day:'목',val:5},{day:'금',val:6},{day:'토',val:4},
+        {day:'오늘',val:3,today:true},
+      ];
+      const max = Math.max(...data.map(d => d.val));
+      const container = document.getElementById('miniChart');
+      container.innerHTML = '';
+      data.forEach(d => {
+        const wrap = document.createElement('div');
+        wrap.className = 'mini-bar-wrap';
+        const bar = document.createElement('div');
+        bar.className = 'mini-bar' + (d.today ? ' today' : '');
+        bar.style.height = Math.round(d.val / max * 100) + '%';
+        const label = document.createElement('div');
+        label.className = 'mini-bar-day' + (d.today ? ' today' : '');
+        label.textContent = d.day;
+        wrap.appendChild(bar); wrap.appendChild(label);
+        container.appendChild(wrap);
+      });
+    }
+
+    /* =====================================================
+       과외 탭 리셋
+    ===================================================== */
+    function resetTutor() {
+      resetUploadUI();
+      goToTutorPage('page-upload');
+    }
+
+    /* =====================================================
+       초기화
+    ===================================================== */
+    applySubject('korean');
+
+    /* =====================================================
+       ⚡ 퀴즈 탭 — 영어 단어 퀴즈 + 국어 독해 퀴즈
+    ===================================================== */
+    const WORDS = [
+      { eng:'ambiguous',   kor:'모호한, 불분명한',      hint:'형용사 · 수능 빈출', ex:'The ambiguous statement confused everyone.' },
+      { eng:'contemplate', kor:'숙고하다, 고려하다',     hint:'동사 · 고난도',       ex:'She contemplated the difficult decision.' },
+      { eng:'intrinsic',   kor:'본질적인, 고유한',       hint:'형용사 · 수능 빈출', ex:'The work has intrinsic value beyond money.' },
+      { eng:'alleviate',   kor:'완화하다, 줄이다',       hint:'동사 · 빈출',         ex:'Rest can alleviate stress effectively.' },
+      { eng:'prevalent',   kor:'만연한, 널리 퍼진',      hint:'형용사 · 수능 빈출', ex:'Smartphones are prevalent in modern life.' },
+      { eng:'cognitive',   kor:'인지의, 인식의',         hint:'형용사 · 심리학',     ex:'Cognitive skills improve with practice.' },
+      { eng:'indifferent', kor:'무관심한',                hint:'형용사 · 수능 빈출', ex:'He seemed indifferent to the results.' },
+      { eng:'profound',    kor:'심오한, 깊은',            hint:'형용사 · 고난도',     ex:'The book had a profound impact on me.' },
+      { eng:'substantial', kor:'상당한, 실질적인',        hint:'형용사 · 수능 빈출', ex:'There was a substantial improvement.' },
+      { eng:'facilitate',  kor:'촉진하다, 가능하게 하다', hint:'동사 · 수능 빈출', ex:'Technology facilitates communication.' },
+      { eng:'perceive',    kor:'인식하다, 지각하다',      hint:'동사 · 수능 빈출',   ex:'How do you perceive this change?' },
+      { eng:'inevitable',  kor:'불가피한',                hint:'형용사 · 수능 빈출', ex:'Change is an inevitable part of life.' },
+      { eng:'resilient',   kor:'회복력 있는',             hint:'형용사 · 최빈출',    ex:'Children are often surprisingly resilient.' },
+      { eng:'obsolete',    kor:'구식의, 쓸모없어진',      hint:'형용사 · 고난도',     ex:'The technology quickly became obsolete.' },
+      { eng:'hierarchy',   kor:'계층 구조, 위계질서',     hint:'명사 · 수능 빈출',   ex:'The social hierarchy affects behavior.' },
+      { eng:'contradict',  kor:'반박하다, 모순되다',      hint:'동사 · 수능 빈출',   ex:'The evidence contradicts the theory.' },
+      { eng:'empathy',     kor:'공감, 감정이입',          hint:'명사 · 최빈출',       ex:'Empathy allows us to understand others.' },
+      { eng:'diminish',    kor:'줄어들다, 약화되다',      hint:'동사 · 수능 빈출',   ex:'The noise began to diminish at night.' },
+      { eng:'diverse',     kor:'다양한',                   hint:'형용사 · 기본',       ex:'The team has diverse backgrounds.' },
+      { eng:'stimulus',    kor:'자극, 촉진제',             hint:'명사 · 심리학',       ex:'Music can act as a stimulus for creativity.' },
+      { eng:'adaptive',    kor:'적응하는',                 hint:'형용사 · 수능 빈출', ex:'Humans are highly adaptive creatures.' },
+      { eng:'hypothesis',  kor:'가설',                     hint:'명사 · 과학',         ex:'The scientist tested the hypothesis.' },
+      { eng:'perspective', kor:'관점, 시각',               hint:'명사 · 최빈출',       ex:'Consider the problem from a new perspective.' },
+      { eng:'skeptical',   kor:'회의적인',                  hint:'형용사 · 고난도',     ex:'Scientists are skeptical of the claim.' },
+      { eng:'deteriorate', kor:'악화되다',                  hint:'동사 · 고난도',       ex:'The situation began to deteriorate.' },
+      { eng:'elaborate',   kor:'자세히 설명하다 / 정교한', hint:'동·형용사 · 고난도', ex:'Could you elaborate on that point?' },
+      { eng:'ethical',     kor:'윤리적인',                  hint:'형용사 · 수능 빈출', ex:'We must consider the ethical implications.' },
+      { eng:'spontaneous', kor:'자발적인, 즉흥적인',       hint:'형용사 · 고난도',     ex:'His spontaneous reaction surprised us.' },
+      { eng:'diligent',    kor:'부지런한, 근면한',          hint:'형용사 · 기본',       ex:'She is a diligent student.' },
+      { eng:'anticipate',  kor:'예상하다, 기대하다',        hint:'동사 · 기본',         ex:'We anticipated the victory.' },
+    ];
+
+    const PASSAGES = [
+      { category:'비문학 · 사회', text:'현대 사회에서 <b>정보</b>는 권력의 원천이 되었다. 과거에는 토지나 자본이 지위를 결정했지만, 오늘날에는 누가 더 많은 정보를 빠르게 처리하느냐가 핵심이다. 이에 따라 정보에 접근하는 능력의 차이가 새로운 <b>불평등</b>을 만들어내며, 이를 "디지털 디바이드"라 부른다.', question:'이 글의 핵심 주제로 가장 적절한 것은?', choices:['정보화 시대의 경제 성장','디지털 기기의 발전 과정','정보 격차로 인한 새로운 불평등','토지와 자본의 중요성 감소'], answer:2, explanation:'"정보에 접근하는 능력의 차이가 새로운 불평등을 만든다"가 핵심이야. 디지털 디바이드가 주제 키워드야. 나머지는 부분적 내용이거나 지문에 없는 내용이야.' },
+      { category:'비문학 · 과학', text:'<b>플라시보 효과</b>란 실제로 약효가 없는 가짜 약을 받았음에도 환자가 호전되는 현상이다. 이는 인간의 심리와 신체가 긴밀히 연결되어 있음을 보여준다. 환자가 치료를 받는다고 믿는 것만으로도 뇌에서 <b>엔도르핀</b>이 분비되어 실제 통증이 감소하기도 한다.', question:'플라시보 효과에 대한 설명으로 지문에 근거한 것은?', choices:['약의 성분이 직접 통증을 줄인다','심리적 믿음이 신체에 실제 영향을 준다','모든 환자에게 동일하게 효과가 나타난다','엔도르핀은 가짜 약에만 분비된다'], answer:1, explanation:'"믿는 것만으로도 뇌에서 엔도르핀이 분비된다"가 핵심 근거야. ①은 반대, ③④는 지문에 없는 내용이야.' },
+      { category:'비문학 · 인문', text:'<b>공감</b>은 타인의 감정을 이해하고 함께 느끼는 능력이다. 심리학자들은 공감을 인지적 공감과 정서적 공감으로 구분한다. <b>인지적 공감</b>은 상대방의 입장을 이성적으로 이해하는 것이고, <b>정서적 공감</b>은 상대의 감정을 실제로 함께 느끼는 것이다. 두 가지가 균형 있게 발달할 때 건강한 인간관계가 형성된다.', question:'이 글에서 언급하지 않은 내용은?', choices:['공감의 두 가지 유형','인지적 공감의 의미','공감 능력을 키우는 방법','정서적 공감의 특징'], answer:2, explanation:'"공감 능력을 키우는 방법"은 지문에 전혀 없어. 지문 근거가 없는 선지를 고르는 문제야.' },
+      { category:'비문학 · 기술', text:'인공지능의 발전은 인간의 노동 방식을 근본적으로 변화시키고 있다. 반복적인 단순 작업은 <b>자동화</b>로 대체되며, 일부 직종의 소멸로 이어지고 있다. 그러나 동시에 새로운 기술을 필요로 하는 <b>신직업</b>도 등장하여, 교육과 직업 훈련의 중요성이 더욱 강조되고 있다.', question:'인공지능 발전의 결과로 지문에 언급된 것은?', choices:['단순 작업의 자동화만 발생','기존 직종 소멸과 신직업 등장이 동시에 일어남','교육의 중요성이 감소','인간의 노동이 완전히 사라짐'], answer:1, explanation:'"직종 소멸"과 "신직업 등장"이 동시에 언급돼 있어. ①은 신직업 등장을 빠뜨렸고 ③④는 반대 내용이야.' },
+      { category:'비문학 · 환경', text:'<b>탄소 중립</b>이란 이산화탄소 배출량과 흡수량을 같게 만들어 실질적 배출량을 0으로 만드는 개념이다. 나무 심기·탄소 포집 기술로 흡수량을 늘리는 한편, 화석 연료 사용을 줄여 배출 자체를 감소시키는 <b>두 방향</b>의 노력이 동시에 필요하다.', question:'탄소 중립 달성 방법으로 지문에서 언급된 것은?', choices:['탄소 배출만 완전히 중단','흡수량을 늘리는 방법만 사용','배출 감소와 흡수 증가를 동시에 추진','화석 연료를 원자력으로 대체'], answer:2, explanation:'"배출 감소"와 "흡수 증가" 두 방향이 핵심이야. ④의 원자력 대체는 지문에 없는 내용이야.' },
+    ];
+
+    let quizMode='word', streak=0;
+    let wPool=[], wIdx=0, wCorrect=0, wWrong=0, wStartTime=0, wTotalTime=0, wAnswered=false;
+    let rIdx=0, rCorrect=0, rTimerInterval=null, rTimeLeft=60, rReadSecs=[], rAnswered=false;
+
+    function setQuizMode(mode){
+      quizMode=mode;
+      document.getElementById('qmodeWord').className='qmode-btn'+(mode==='word'?' active-word':'');
+      document.getElementById('qmodeRead').className='qmode-btn'+(mode==='read'?' active-read':'');
+      document.getElementById('quiz-word').classList.toggle('active',mode==='word');
+      document.getElementById('quiz-read').classList.toggle('active',mode==='read');
+      if(mode==='word') startWordQuiz(); else startReadQuiz();
+    }
+
+    function updateStreak(hit){
+      if(hit) streak++; else streak=0;
+      document.getElementById('streakCount').textContent=streak;
+      const dots=document.getElementById('streakDots'); dots.innerHTML='';
+      for(let i=0;i<5;i++){const d=document.createElement('div');d.className='streak-dot'+(i<streak?' hit':'');dots.appendChild(d);}
+    }
+
+    function startWordQuiz(){
+      wPool=[...WORDS].sort(()=>Math.random()-.5).slice(0,10);
+      wIdx=0;wCorrect=0;wWrong=0;wTotalTime=0;
+      document.getElementById('wordResultWrap').classList.remove('show');
+      document.querySelector('#quiz-word .word-quiz-wrap').style.display='block';
+      renderWord();
+    }
+
+    function renderWord(){
+      if(wIdx>=wPool.length){showWordResult();return;}
+      const w=wPool[wIdx]; wAnswered=false; wStartTime=Date.now();
+      document.getElementById('wEng').textContent=w.eng;
+      document.getElementById('wHint').textContent=w.hint;
+      document.getElementById('wKor').textContent=w.kor;
+      document.getElementById('wEx').textContent=w.ex;
+      document.getElementById('wMeaning').classList.remove('show');
+      const pct=Math.round(wIdx/wPool.length*100);
+      document.getElementById('wordProgFill').style.width=pct+'%';
+      document.getElementById('wordProgText').textContent=(wIdx+1)+' / '+wPool.length;
+      document.getElementById('wordFeedback').className='quiz-feedback';
+      document.getElementById('wordNextBtn').className='quiz-next-btn';
+      const others=WORDS.filter(x=>x.eng!==w.eng).sort(()=>Math.random()-.5).slice(0,3).map(x=>x.kor);
+      const choices=[w.kor,...others].sort(()=>Math.random()-.5);
+      const grid=document.getElementById('wordChoices'); grid.innerHTML='';
+      choices.forEach(c=>{const btn=document.createElement('button');btn.className='choice-btn';btn.textContent=c;btn.onclick=()=>checkWord(btn,c,w.kor);grid.appendChild(btn);});
+    }
+
+    function flipWord(){document.getElementById('wMeaning').classList.toggle('show');}
+
+    function checkWord(btn,chosen,correct){
+      if(wAnswered)return; wAnswered=true;
+      wTotalTime+=Math.round((Date.now()-wStartTime)/1000);
+      const isRight=chosen===correct;
+      if(isRight){wCorrect++;updateStreak(true);}else{wWrong++;updateStreak(false);}
+      document.querySelectorAll('#wordChoices .choice-btn').forEach(b=>{b.disabled=true;if(b.textContent===correct)b.classList.add('correct');else if(b===btn&&!isRight)b.classList.add('wrong');});
+      document.getElementById('wMeaning').classList.add('show');
+      const fb=document.getElementById('wordFeedback');
+      fb.className='quiz-feedback show '+(isRight?'ok':'bad');
+      document.getElementById('wfEmoji').textContent=isRight?'🎉':'😅';
+      document.getElementById('wfText').textContent=isRight?'정답이야!':'아쉽, 틀렸어';
+      document.getElementById('wfSub').textContent=isRight?wPool[wIdx].eng+' = '+correct:'정답: '+correct;
+      document.getElementById('wordNextBtn').classList.add('show');
+    }
+
+    function nextWord(){wIdx++;renderWord();}
+
+    function showWordResult(){
+      document.querySelector('#quiz-word .word-quiz-wrap').style.display='none';
+      document.getElementById('wordResultWrap').classList.add('show');
+      document.getElementById('wordScoreNum').textContent=wCorrect;
+      document.getElementById('wordCorrectNum').textContent=wCorrect;
+      document.getElementById('wordWrongNum').textContent=wWrong;
+      document.getElementById('wordTimeNum').textContent=wTotalTime+'초';
+      const t=['조금 더 연습이 필요해 💪','절반 넘었어, 잘하고 있어!','훌륭해! 거의 다 맞혔어 🎉','완벽! 수능 영어 문제없어 🏆'];
+      document.getElementById('wordResultTitle').textContent=t[wCorrect<=4?0:wCorrect<=7?1:wCorrect<=9?2:3];
+      document.getElementById('wordResultSub').textContent='정답률 '+Math.round(wCorrect/wPool.length*100)+'% · 총 '+wTotalTime+'초';
+    }
+
+    function startReadQuiz(){
+      rIdx=0;rCorrect=0;rReadSecs=[];
+      document.getElementById('readResultWrap').classList.remove('show');
+      renderPassageNav();renderPassage();
+    }
+
+    function renderPassageNav(){
+      const nav=document.getElementById('passageNav');nav.innerHTML='';
+      PASSAGES.forEach((_,i)=>{const d=document.createElement('div');d.className='pnav-dot'+(i<rIdx?' done':i===rIdx?' current':'');nav.appendChild(d);});
+    }
+
+    function renderPassage(){
+      if(rIdx>=PASSAGES.length){showReadResult();return;}
+      const p=PASSAGES[rIdx]; rAnswered=false; rTimeLeft=60;
+      clearInterval(rTimerInterval);
+      document.getElementById('passageCategory').textContent=p.category;
+      document.getElementById('passageText').innerHTML=p.text;
+      document.getElementById('rqNum').textContent='문제 '+(rIdx+1);
+      document.getElementById('rqText').textContent=p.question;
+      document.getElementById('readExplanation').className='read-explanation';
+      document.getElementById('readNextBtn').className='quiz-next-btn';
+      const choicesEl=document.getElementById('rqChoices');choicesEl.innerHTML='';
+      p.choices.forEach((c,i)=>{const btn=document.createElement('button');btn.className='rq-choice';btn.innerHTML='<span class="rq-no">'+['①','②','③','④'][i]+'</span> '+c;btn.onclick=()=>checkPassage(btn,i,p.answer,p.explanation);choicesEl.appendChild(btn);});
+      updateReadTimer();
+      rTimerInterval=setInterval(()=>{rTimeLeft--;updateReadTimer();if(rTimeLeft<=0){clearInterval(rTimerInterval);if(!rAnswered)timeoutPassage(p.answer,p.explanation);}},1000);
+      renderPassageNav();
+    }
+
+    function updateReadTimer(){const el=document.getElementById('readTimer');el.textContent=rTimeLeft;el.className='ptimer-val'+(rTimeLeft<=15?' urgent':'');}
+
+    function checkPassage(btn,chosen,correct,explanation){
+      if(rAnswered)return;rAnswered=true;clearInterval(rTimerInterval);rReadSecs.push(60-rTimeLeft);
+      const isRight=chosen===correct;
+      if(isRight){rCorrect++;updateStreak(true);}else{updateStreak(false);}
+      document.querySelectorAll('#rqChoices .rq-choice').forEach((b,i)=>{b.disabled=true;if(i===correct)b.classList.add('correct');else if(b===btn&&!isRight)b.classList.add('wrong');});
+      document.getElementById('readExplanation').className='read-explanation show';
+      document.getElementById('reText').textContent=explanation;
+      document.getElementById('readNextBtn').classList.add('show');
+    }
+
+    function timeoutPassage(correct,explanation){
+      rAnswered=true;rReadSecs.push(60);
+      document.querySelectorAll('#rqChoices .rq-choice').forEach((b,i)=>{b.disabled=true;if(i===correct)b.classList.add('correct');});
+      document.getElementById('readExplanation').className='read-explanation show';
+      document.getElementById('reText').textContent='⏰ 시간 초과! '+explanation;
+      document.getElementById('readNextBtn').classList.add('show');
+    }
+
+    function nextPassage(){rIdx++;if(rIdx>=PASSAGES.length){showReadResult();return;}renderPassage();}
+
+    function showReadResult(){
+      clearInterval(rTimerInterval);
+      document.getElementById('readResultWrap').classList.add('show');
+      const avg=rReadSecs.length?Math.round(rReadSecs.reduce((a,b)=>a+b,0)/rReadSecs.length):0;
+      document.getElementById('readScoreNum').textContent=rCorrect;
+      document.getElementById('readCorrectNum').textContent=rCorrect;
+      document.getElementById('readAvgTime').textContent=avg+'초';
+      const m=['한 번 더 도전해봐! 💪','절반 성공! 지문을 더 꼼꼼히 읽어봐','잘했어! 핵심 파악 최고 👍','완벽해! 국어 독해 능력 최상 🏆'];
+      document.getElementById('readResultTitle').textContent=m[rCorrect<=1?0:rCorrect<=3?1:rCorrect<=4?2:3];
+      document.getElementById('readResultSub').textContent='정답 '+rCorrect+'/5 · 평균 읽기 '+avg+'초';
+    }
+
+    /* =====================================================
+       🎓 진로 상담 탭 로직
+    ===================================================== */
+    const CAREER_QUICK = [
+      '이과 vs 문과 어떻게 선택하지?',
+      '성적은 중간인데 갈 수 있는 대학이 궁금해',
+      '좋아하는 게 없는데 전공 어떻게 고르지?',
+      '의대 vs 공대, 뭐가 더 나을까?',
+      '문과인데 취업 잘 되는 전공 알려줘',
+      '내 적성을 모르겠어, 어떻게 찾지?',
+    ];
+
+    const CAREER_AI = {
+      '이과 vs 문과 어떻게 선택하지?': { icon:'⚖️', reply:`이과 vs 문과 선택은 <strong>성적보다 흥미와 적성</strong>이 우선이야.\n\n📌 이과를 선택하면 좋은 경우\n• 수학·과학 문제 풀 때 재미를 느껴\n• 의약학·공학·IT 분야에 관심이 있어\n• 논리적으로 분석하는 걸 좋아해\n\n📌 문과를 선택하면 좋은 경우\n• 언어·역사·사회 공부가 더 즐거워\n• 사람과 소통하거나 글 쓰는 걸 좋아해\n• 법학·경영·교육·언론 분야에 관심이 있어\n\n💡 지금 어느 과목이 더 재미있어? 그게 가장 큰 힌트야.` },
+      '성적은 중간인데 갈 수 있는 대학이 궁금해': { icon:'🎓', reply:`성적이 중위권이라면 <strong>전략적 선택</strong>이 정말 중요해.\n\n📊 중위권 추천 전략\n① 수도권 중위 대학 + 취업 잘 되는 전공 조합\n   예: 중앙대·한국외대·건국대 등\n② 지방 거점 국립대 (충남대·경북대·부산대)\n   — 등록금 저렴 + 지역 취업 강점\n③ 특기·실기 전형 활용\n   — 예체능, 스포츠, 직업계 전형\n\n💡 성적이 같아도 어떤 전공을 고르느냐에 따라 취업 결과가 크게 달라져. 전공 먼저 정하고 대학을 맞추는 게 더 유리해.` },
+      '좋아하는 게 없는데 전공 어떻게 고르지?': { icon:'🔍', reply:`"좋아하는 게 없다"는 건 아직 충분히 경험을 못 해본 거일 수도 있어.\n\n🛠 지금 당장 할 수 있는 방법\n① <strong>싫지 않은 것</strong>부터 찾아봐\n   — 수학·언어·그림·운동 중 덜 싫은 게 있어?\n② 유튜브로 직업 일상 영상 보기\n   — '간호사 브이로그', '소프트웨어 엔지니어 하루' 등\n③ 커리어넷 직업 적성검사 (무료)\n   — career.go.kr 에서 15분 만에 가능\n④ 단기 경험 쌓기\n   — 봉사, 학교 동아리, 대회 참가\n\n💡 지금 20가지 직업을 알면 그 중에 좋아하는 게 없는 거야. 100가지를 알면 반드시 끌리는 게 생겨.` },
+      '의대 vs 공대, 뭐가 더 나을까?': { icon:'🏥', reply:`의대 vs 공대, 둘 다 훌륭한 선택이야. 기준에 따라 달라.\n\n🏥 의대를 선택하면\n• 안정적인 고소득 (평균 연봉 상위 1%)\n• 오랜 수련 기간 (본과 4년 + 인턴/레지던트 4~5년)\n• 사람을 직접 돕는 직업적 보람\n• 진입 장벽이 매우 높음 (최상위 성적 필요)\n\n⚙️ 공대를 선택하면\n• 졸업 후 빠른 취업 (3~4년)\n• IT·AI·반도체 등 미래 성장 분야\n• 스타트업·대기업 다양한 경로\n• 의대 대비 상대적으로 진입 쉬움\n\n💡 핵심 질문: <strong>사람을 고치는 일 vs 시스템을 만드는 일</strong>, 어느 쪽이 더 설레?` },
+      '문과인데 취업 잘 되는 전공 알려줘': { icon:'💼', reply:`문과 중에서도 취업 강한 전공이 분명히 있어!\n\n🏆 문과 취업률 상위 전공\n① <strong>경영·경제학과</strong> — 가장 범용적, 대기업 선호\n② <strong>통계학과</strong> — 데이터 분석 수요 폭발적 증가\n③ <strong>사회복지학과</strong> — 공무원·사회서비스 안정적\n④ <strong>교육학·사범계열</strong> — 교사 자격증 → 안정성\n⑤ <strong>법학과</strong> — 법조인·공무원·대기업 법무팀\n⑥ <strong>언론·미디어학과</strong> — 콘텐츠 시대에 수요 증가\n\n💡 요즘은 전공보다 <strong>디지털 역량</strong>(엑셀·파이썬·데이터 분석)을 추가로 갖추면 문과도 이과 못지않게 취업이 잘 돼.` },
+      '내 적성을 모르겠어, 어떻게 찾지?': { icon:'🧭', reply:`적성을 모르는 게 너무 당연해. 고등학생 때 확실한 사람이 오히려 드물어.\n\n🔎 적성 찾는 5가지 방법\n① <strong>커리어넷 직업 적성검사</strong>\n   career.go.kr → 무료 · 15분\n② <strong>MBTI + 홀랜드 검사</strong>\n   성격 유형과 직업 흥미를 같이 파악\n③ <strong>내가 시간 가는 줄 모르는 활동</strong>\n   게임이라도 OK — 게임 기획·개발도 직업이야\n④ <strong>존경하는 사람의 직업</strong>\n   유튜버·선생님·운동선수... 그 직업을 역추적\n⑤ <strong>싫은 것의 반대를 찾기</strong>\n   앉아서 일하기 싫으면 → 현장직·스포츠 계열\n\n💡 지금 어떤 활동을 할 때 가장 시간이 빨리 가? 그게 적성의 출발점이야.` },
+    };
+
+    let careerHistory = []; // { role:'user'|'ai', text, icon? }
+
+    function renderCareerChat() {
+      const box = document.getElementById('careerChatBox');
+      box.innerHTML = '';
+      careerHistory.forEach(m => {
+        const div = document.createElement('div');
+        div.className = 'cc-msg cc-' + m.role;
+        if (m.role === 'ai') {
+          div.innerHTML = '<div class="cc-avatar">' + (m.icon || '🎓') + '</div>' +
+            '<div class="cc-bubble"><div class="cc-text">' + m.text.replace(/\n/g,'<br>') + '</div></div>';
+        } else {
+          div.innerHTML = '<div class="cc-bubble cc-user-bubble"><div class="cc-text">' + m.text + '</div></div>';
+        }
+        box.appendChild(div);
+      });
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function sendCareerMsg() {
+      const input = document.getElementById('careerInput');
+      const text  = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      careerHistory.push({ role:'user', text });
+      renderCareerChat();
+      setTimeout(() => aiCareerReply(text), 600);
+    }
+
+    function quickCareer(q) {
+      careerHistory.push({ role:'user', text: q });
+      renderCareerChat();
+      setTimeout(() => aiCareerReply(q), 600);
+    }
+
+    function aiCareerReply(q) {
+      // 키워드 매칭
+      let matched = CAREER_AI[q];
+      if (!matched) {
+        // 키워드 기반 유사 매칭
+        const keys = Object.keys(CAREER_AI);
+        for (const k of keys) {
+          const kws = k.replace(/[?]/g,'').split(/\s+/);
+          if (kws.some(kw => kw.length > 1 && q.includes(kw))) { matched = CAREER_AI[k]; break; }
+        }
+      }
+
+      let reply, icon = '🎓';
+      if (matched) {
+        reply = matched.reply; icon = matched.icon;
+      } else {
+        // 기본 응답 — 유형별 분기
+        if (q.match(/의대|의사|병원/)) {
+          reply = '의대 진학은 매우 높은 성적이 필요해. 현재 성적과 목표를 구체적으로 알려주면 더 자세한 전략을 짜줄 수 있어!';
+          icon = '🏥';
+        } else if (q.match(/공대|엔지니어|개발|코딩|IT/)) {
+          reply = '공대·IT 계열은 지금 가장 취업이 활발한 분야야. 수학을 좋아한다면 강력 추천! 어떤 분야에 관심 있어? 반도체, 소프트웨어, 기계 등 세부 분야를 알면 더 구체적으로 상담해줄 수 있어.';
+          icon = '⚙️';
+        } else if (q.match(/예술|미대|디자인|그림/)) {
+          reply = '예술·디자인 계열은 포트폴리오가 성적만큼 중요해. UI/UX 디자인, 영상, 패션 등 세부 분야에 따라 전략이 달라. 어떤 분야야?';
+          icon = '🎨';
+        } else if (q.match(/취업|직업|진로|미래/)) {
+          reply = '진로 고민은 누구나 해. 핵심은 좋아하는 것, 잘하는 것, 세상이 필요로 하는 것이 겹치는 지점을 찾는 거야. 구체적으로 어떤 고민인지 말해줘, 맞춤으로 도와줄게!';
+          icon = '🧭';
+        } else if (q.match(/수능|내신|성적|공부/)) {
+          reply = '성적 전략은 현재 위치를 파악하는 게 먼저야. 지금 수능 기준 어느 정도 성적대야? 그에 맞는 대학·전공 전략을 알려줄게.';
+          icon = '📊';
+        } else {
+          reply = '좋은 질문이야! 조금 더 구체적으로 알려줄게.\n\n진로 상담을 잘 받으려면 이런 정보를 알려줘:\n① 현재 성적대 (상·중·하)\n② 좋아하거나 잘하는 과목\n③ 관심 있는 직업이나 분야\n\n위 3가지를 말해주면 딱 맞는 상담을 해줄게! 💪';
+          icon = '🤔';
+        }
+      }
+
+      careerHistory.push({ role:'ai', text: reply, icon });
+      renderCareerChat();
+    }
+
+    // Enter 키 전송
+    document.getElementById('careerInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendCareerMsg(); }
+    });
+
+    // 초기 AI 인사
+    careerHistory.push({
+      role: 'ai',
+      icon: '🎓',
+      text: '안녕! 나는 빠독 진로 상담 AI야.\n전공 선택, 대학 진학, 직업 탐색 뭐든 물어봐.\n아래 빠른 질문을 눌러도 되고, 직접 입력해도 돼! 😊'
+    });
+    renderCareerChat();
+
+    // 퀴즈 탭 진입 시 시작
+    document.getElementById('nav-2').addEventListener('click', () => {
+      if (quizMode==='word') startWordQuiz(); else startReadQuiz();
+    });
+
+    startWordQuiz();
+  </script>
+
+  <!-- ========================= 퀴즈 탭 HTML ========================= -->
+  <style>
+    /* ── 퀴즈 탭 ── */
+    .quiz-mode-bar{display:flex;gap:10px;padding:16px 20px 0;}
+    .qmode-btn{flex:1;padding:14px 8px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;border:2px solid var(--gray-300);background:var(--white);color:var(--gray-500);transition:all .2s;text-align:center;}
+    .qmode-btn .qm-emoji{font-size:24px;display:block;margin-bottom:4px;}
+    .qmode-btn.active-word{border-color:var(--english-color);background:#d1fae5;color:#065f46;}
+    .qmode-btn.active-read{border-color:var(--korean-color);background:#ede9fe;color:#4c1d95;}
+    .quiz-content{display:none;}.quiz-content.active{display:block;}
+    .word-quiz-wrap{padding:20px;}
+    .quiz-prog-row{display:flex;align-items:center;gap:10px;margin-bottom:20px;}
+    .quiz-prog-track{flex:1;height:8px;background:var(--gray-200);border-radius:8px;overflow:hidden;}
+    .quiz-prog-fill{height:100%;border-radius:8px;background:var(--english-color);transition:width .4s;}
+    .quiz-prog-text{font-size:12px;font-weight:700;color:var(--gray-500);white-space:nowrap;}
+    .word-card{background:linear-gradient(135deg,#064e3b,#065f46);border-radius:20px;padding:32px 24px;text-align:center;margin-bottom:20px;min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+    .word-card::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(255,255,255,.08) 0%,transparent 70%);border-radius:50%;}
+    .word-eng{font-size:34px;font-weight:900;color:var(--white);letter-spacing:-1px;margin-bottom:6px;}
+    .word-hint{font-size:13px;color:rgba(255,255,255,.55);margin-bottom:10px;}
+    .word-flip-btn{background:rgba(255,255,255,.15);border:none;border-radius:20px;padding:8px 20px;font-size:13px;font-weight:700;color:rgba(255,255,255,.8);cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+    .word-meaning{display:none;margin-top:14px;background:rgba(255,255,255,.12);border-radius:12px;padding:14px 18px;width:100%;}
+    .word-meaning.show{display:block;}
+    .wm-kor{font-size:20px;font-weight:900;color:#6ee7b7;margin-bottom:4px;}
+    .wm-ex{font-size:12px;color:rgba(255,255,255,.65);line-height:1.6;}
+    .choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+    .choice-btn{padding:14px 10px;border-radius:13px;font-size:14px;font-weight:700;border:2px solid var(--gray-300);background:var(--white);color:var(--navy);cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .15s;text-align:center;}
+    .choice-btn:hover{border-color:var(--english-color);background:#d1fae5;}
+    .choice-btn.correct{border-color:var(--green);background:#dcfce7;color:#166534;}
+    .choice-btn.wrong{border-color:var(--red);background:#fee2e2;color:#991b1b;}
+    .choice-btn:disabled{cursor:not-allowed;}
+    .quiz-feedback{display:none;border-radius:13px;padding:14px 16px;margin-bottom:16px;text-align:center;}
+    .quiz-feedback.show{display:block;}
+    .quiz-feedback.ok{background:#dcfce7;border:1.5px solid #86efac;}
+    .quiz-feedback.bad{background:#fee2e2;border:1.5px solid #fca5a5;}
+    .qf-emoji{font-size:28px;}.qf-text{font-size:14px;font-weight:700;margin-top:4px;}.qf-sub{font-size:12px;color:var(--gray-500);margin-top:2px;}
+    .quiz-feedback.ok .qf-text{color:#166534;}.quiz-feedback.bad .qf-text{color:#991b1b;}
+    .quiz-next-btn{width:100%;padding:15px;border-radius:13px;background:var(--english-color);color:var(--white);border:none;font-size:16px;font-weight:900;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:none;transition:transform .15s;}
+    .quiz-next-btn.show{display:block;}.quiz-next-btn:hover{transform:translateY(-2px);}
+    .quiz-result-wrap{display:none;padding:20px;text-align:center;}
+    .quiz-result-wrap.show{display:block;}
+    .qr-circle{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,var(--english-color),#059669);display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 8px 24px rgba(16,185,129,.35);}
+    .qr-score{font-size:32px;font-weight:900;color:var(--white);line-height:1;}.qr-total{font-size:13px;color:rgba(255,255,255,.75);}
+    .qr-title{font-size:20px;font-weight:900;color:var(--navy);margin-bottom:6px;}.qr-sub{font-size:13px;color:var(--gray-500);margin-bottom:24px;}
+    .qr-stats{display:flex;gap:10px;margin-bottom:20px;}
+    .qrs-card{flex:1;background:var(--white);border-radius:13px;padding:14px 10px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+    .qrs-card .qrs-val{font-size:22px;font-weight:900;color:var(--navy);}.qrs-card .qrs-lbl{font-size:11px;color:var(--gray-500);margin-top:2px;}
+    .quiz-retry-btn{width:100%;padding:15px;border-radius:13px;background:var(--navy);color:var(--white);border:none;font-size:16px;font-weight:900;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+    .read-quiz-wrap{padding:20px;}
+    .passage-nav{display:flex;gap:8px;margin-bottom:20px;}
+    .pnav-dot{flex:1;height:6px;border-radius:6px;background:var(--gray-200);transition:background .3s;}
+    .pnav-dot.done{background:var(--green);}.pnav-dot.current{background:var(--korean-color);}
+    .passage-card{background:var(--white);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,.06);border-left:4px solid var(--korean-color);}
+    .passage-label{font-size:11px;font-weight:700;color:var(--korean-color);letter-spacing:.8px;margin-bottom:10px;text-transform:uppercase;}
+    .passage-timer-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+    .ptimer{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;}
+    .ptimer-val{color:var(--korean-color);font-size:16px;}
+    @keyframes pulse2{0%,100%{opacity:1}50%{opacity:.4}}
+    .ptimer-val.urgent{color:var(--red);animation:pulse2 .5s infinite;}
+    .passage-text{font-size:14px;line-height:2;color:var(--gray-700);}
+    .read-question{background:var(--white);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+    .rq-num{font-size:11px;font-weight:700;color:var(--korean-color);margin-bottom:8px;}
+    .rq-text{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:14px;line-height:1.6;}
+    .rq-choices{display:flex;flex-direction:column;gap:8px;}
+    .rq-choice{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:11px;border:1.5px solid var(--gray-300);background:var(--white);cursor:pointer;font-size:13px;color:var(--gray-700);transition:all .15s;text-align:left;font-family:'Noto Sans KR',sans-serif;line-height:1.5;}
+    .rq-choice:hover{border-color:var(--korean-color);background:#ede9fe;}
+    .rq-choice.correct{border-color:var(--green);background:#dcfce7;color:#166534;font-weight:700;}
+    .rq-choice.wrong{border-color:var(--red);background:#fee2e2;color:#991b1b;}
+    .rq-choice:disabled{cursor:not-allowed;}
+    .rq-no{font-size:13px;font-weight:900;color:var(--korean-color);flex-shrink:0;min-width:18px;}
+    .rq-choice.correct .rq-no{color:#166534;}.rq-choice.wrong .rq-no{color:#991b1b;}
+    .read-explanation{display:none;background:#ede9fe;border:1.5px solid #c4b5fd;border-radius:13px;padding:16px;margin-bottom:14px;}
+    .read-explanation.show{display:block;}
+    .re-title{font-size:13px;font-weight:700;color:var(--korean-color);margin-bottom:6px;}
+    .re-text{font-size:12px;color:#4c1d95;line-height:1.7;}
+    .streak-bar{display:flex;align-items:center;gap:8px;padding:12px 20px;background:var(--white);border-bottom:1px solid var(--gray-300);}
+    .streak-icon{font-size:18px;}.streak-text{font-size:13px;font-weight:700;color:var(--navy);}
+    .streak-dots{display:flex;gap:4px;margin-left:auto;}
+    .streak-dot{width:10px;height:10px;border-radius:50%;background:var(--gray-200);}
+    .streak-dot.hit{background:var(--yellow);}
+
+    /* ── 진로 상담 탭 ── */
+    .career-header{background:linear-gradient(135deg,#1a2744,#312e81);padding:24px 20px 20px;color:var(--white);}
+    .career-header-top{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+    .career-avatar{width:48px;height:48px;border-radius:50%;background:#facc15;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;border:3px solid rgba(255,255,255,.3);}
+    .career-header-info small{display:block;font-size:11px;color:rgba(255,255,255,.6);margin-bottom:2px;}
+    .career-header-info strong{font-size:16px;font-weight:900;}
+    .career-header-desc{font-size:12px;color:rgba(255,255,255,.65);line-height:1.6;}
+    .quick-q-bar{padding:14px 20px 0;background:var(--white);border-bottom:1px solid var(--gray-200);}
+    .quick-q-label{font-size:11px;font-weight:700;color:var(--gray-500);letter-spacing:.8px;margin-bottom:8px;text-transform:uppercase;}
+    .quick-q-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none;}
+    .quick-q-scroll::-webkit-scrollbar{display:none;}
+    .quick-q-btn{flex-shrink:0;padding:8px 14px;border-radius:18px;border:1.5px solid var(--gray-300);background:var(--white);font-size:12px;font-weight:700;color:var(--navy);cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;transition:all .15s;}
+    .quick-q-btn:hover{border-color:#6366f1;background:#ede9fe;color:#4c1d95;}
+    .career-chat-box{padding:16px 20px;display:flex;flex-direction:column;gap:14px;min-height:300px;max-height:420px;overflow-y:auto;background:var(--gray-100);}
+    .cc-msg{display:flex;gap:10px;align-items:flex-start;}
+    .cc-user{flex-direction:row-reverse;}
+    .cc-avatar{width:36px;height:36px;border-radius:50%;background:#facc15;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .cc-bubble{max-width:78%;background:var(--white);border-radius:14px 14px 14px 4px;padding:12px 14px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+    .cc-user-bubble{background:#1a2744;border-radius:14px 14px 4px 14px;margin-left:auto;}
+    .cc-text{font-size:13px;line-height:1.75;color:var(--gray-700);}
+    .cc-user .cc-text{color:rgba(255,255,255,.9);}
+    .cc-text strong{color:#1a2744;font-weight:700;}
+    .cc-user .cc-text strong{color:#facc15;}
+    .career-input-bar{display:flex;gap:8px;padding:12px 20px;background:var(--white);border-top:1px solid var(--gray-300);position:sticky;bottom:72px;}
+    .career-input{flex:1;border:1.5px solid var(--gray-300);border-radius:22px;padding:11px 16px;font-size:14px;font-family:'Noto Sans KR',sans-serif;color:var(--navy);outline:none;transition:border-color .2s;background:var(--gray-100);}
+    .career-input:focus{border-color:#6366f1;background:var(--white);}
+    .career-send-btn{width:44px;height:44px;border-radius:50%;background:#6366f1;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;transition:transform .15s;}
+    .career-send-btn:hover{transform:scale(1.08);}
+    .career-topics{display:flex;gap:8px;flex-wrap:wrap;padding:16px 20px 0;}
+    .career-topic-card{flex:1;min-width:calc(50% - 4px);background:var(--white);border-radius:14px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.05);cursor:pointer;border:1.5px solid transparent;transition:all .2s;}
+    .career-topic-card:hover{border-color:#6366f1;background:#ede9fe;}
+    .career-topic-card .ct-emoji{font-size:24px;margin-bottom:6px;}
+    .career-topic-card .ct-title{font-size:13px;font-weight:700;color:var(--navy);}
+    .career-topic-card .ct-sub{font-size:11px;color:var(--gray-500);margin-top:2px;}
+  </style>
+
+  <!-- 퀴즈 탭 -->
+  <div class="tab-view" id="tab-quiz">
+    <div class="streak-bar">
+      <span class="streak-icon">🔥</span>
+      <span class="streak-text">연속 정답 <span id="streakCount">0</span>개</span>
+      <div class="streak-dots" id="streakDots"></div>
+    </div>
+    <div class="quiz-mode-bar">
+      <button class="qmode-btn active-word" id="qmodeWord" onclick="setQuizMode('word')"><span class="qm-emoji">🇬🇧</span>영어 단어 퀴즈</button>
+      <button class="qmode-btn" id="qmodeRead" onclick="setQuizMode('read')"><span class="qm-emoji">📖</span>국어 독해 퀴즈</button>
+    </div>
+
+    <!-- 영어 단어 퀴즈 -->
+    <div class="quiz-content active" id="quiz-word">
+      <div class="word-quiz-wrap">
+        <div class="quiz-prog-row">
+          <div class="quiz-prog-track"><div class="quiz-prog-fill" id="wordProgFill" style="width:0%"></div></div>
+          <span class="quiz-prog-text" id="wordProgText">1 / 10</span>
+        </div>
+        <div class="word-card">
+          <div class="word-eng" id="wEng">ambiguous</div>
+          <div class="word-hint" id="wHint">형용사 · 수능 빈출</div>
+          <button class="word-flip-btn" onclick="flipWord()">💡 뜻 먼저 보기</button>
+          <div class="word-meaning" id="wMeaning">
+            <div class="wm-kor" id="wKor">모호한, 불분명한</div>
+            <div class="wm-ex" id="wEx"></div>
+          </div>
+        </div>
+        <div class="choice-grid" id="wordChoices"></div>
+        <div class="quiz-feedback" id="wordFeedback">
+          <div class="qf-emoji" id="wfEmoji">✅</div>
+          <div class="qf-text" id="wfText">정답이야!</div>
+          <div class="qf-sub"  id="wfSub"></div>
+        </div>
+        <button class="quiz-next-btn" id="wordNextBtn" onclick="nextWord()">다음 단어 →</button>
+      </div>
+      <div class="quiz-result-wrap" id="wordResultWrap">
+        <div class="qr-circle"><div class="qr-score" id="wordScoreNum">0</div><div class="qr-total">/ 10</div></div>
+        <div class="qr-title" id="wordResultTitle"></div>
+        <div class="qr-sub"   id="wordResultSub"></div>
+        <div class="qr-stats">
+          <div class="qrs-card"><div class="qrs-val" id="wordCorrectNum" style="color:var(--green)">0</div><div class="qrs-lbl">정답</div></div>
+          <div class="qrs-card"><div class="qrs-val" id="wordWrongNum"   style="color:var(--red)">0</div><div class="qrs-lbl">오답</div></div>
+          <div class="qrs-card"><div class="qrs-val" id="wordTimeNum"    style="color:var(--orange)">0초</div><div class="qrs-lbl">소요 시간</div></div>
+        </div>
+        <button class="quiz-retry-btn" onclick="startWordQuiz()">🔄 다시 풀기</button>
+      </div>
+    </div>
+
+    <!-- 국어 독해 퀴즈 -->
+    <div class="quiz-content" id="quiz-read">
+      <div class="read-quiz-wrap">
+        <div class="passage-nav" id="passageNav"></div>
+        <div class="passage-card">
+          <div class="passage-label">📄 오늘의 지문</div>
+          <div class="passage-timer-row">
+            <div class="ptimer">⏱ 제한 <span class="ptimer-val" id="readTimer">60</span>초</div>
+            <span style="font-size:11px;color:var(--gray-500)" id="passageCategory">비문학</span>
+          </div>
+          <div class="passage-text" id="passageText"></div>
+        </div>
+        <div class="read-question" id="readQuestion">
+          <div class="rq-num" id="rqNum">문제 1</div>
+          <div class="rq-text" id="rqText"></div>
+          <div class="rq-choices" id="rqChoices"></div>
+        </div>
+        <div class="read-explanation" id="readExplanation">
+          <div class="re-title">📌 해설</div>
+          <div class="re-text" id="reText"></div>
+        </div>
+        <button class="quiz-next-btn" id="readNextBtn" style="background:var(--korean-color)" onclick="nextPassage()">다음 지문 →</button>
+        <div class="quiz-result-wrap" id="readResultWrap">
+          <div class="qr-circle" style="background:linear-gradient(135deg,var(--korean-color),#7c3aed)"><div class="qr-score" id="readScoreNum">0</div><div class="qr-total">/ 5</div></div>
+          <div class="qr-title" id="readResultTitle"></div>
+          <div class="qr-sub"   id="readResultSub"></div>
+          <div class="qr-stats">
+            <div class="qrs-card"><div class="qrs-val" id="readCorrectNum" style="color:var(--green)">0</div><div class="qrs-lbl">정답</div></div>
+            <div class="qrs-card"><div class="qrs-val" id="readAvgTime"    style="color:var(--orange)">0초</div><div class="qrs-lbl">평균 읽기</div></div>
+          </div>
+          <button class="quiz-retry-btn" style="background:var(--korean-color)" onclick="startReadQuiz()">🔄 다시 풀기</button>
+        </div>
+      </div>
+    </div>
+  </div><!-- /tab-quiz -->
+
+  <!-- 진로 상담 탭 -->
+  <div class="tab-view" id="tab-career">
+
+    <!-- 헤더 -->
+    <div class="career-header">
+      <div class="career-header-top">
+        <div class="career-avatar">🎓</div>
+        <div class="career-header-info">
+          <small>AI 진로 상담사</small>
+          <strong>전공 · 진로 상담</strong>
+        </div>
+      </div>
+      <div class="career-header-desc">전공 선택, 대학 진학, 직업 탐색 — 뭐든 물어봐.<br>24시간 언제든 바로 답해줄게 💬</div>
+    </div>
+
+    <!-- 주제 카드 (첫 진입용) -->
+    <div class="career-topics">
+      <div class="career-topic-card" onclick="quickCareer('이과 vs 문과 어떻게 선택하지?')">
+        <div class="ct-emoji">⚖️</div>
+        <div class="ct-title">이과 vs 문과</div>
+        <div class="ct-sub">계열 선택 고민</div>
+      </div>
+      <div class="career-topic-card" onclick="quickCareer('좋아하는 게 없는데 전공 어떻게 고르지?')">
+        <div class="ct-emoji">🔍</div>
+        <div class="ct-title">전공 탐색</div>
+        <div class="ct-sub">적성 모를 때</div>
+      </div>
+      <div class="career-topic-card" onclick="quickCareer('의대 vs 공대, 뭐가 더 나을까?')">
+        <div class="ct-emoji">🏥</div>
+        <div class="ct-title">의대 vs 공대</div>
+        <div class="ct-sub">인기 학과 비교</div>
+      </div>
+      <div class="career-topic-card" onclick="quickCareer('문과인데 취업 잘 되는 전공 알려줘')">
+        <div class="ct-emoji">💼</div>
+        <div class="ct-title">취업 전공</div>
+        <div class="ct-sub">문과 강세 분야</div>
+      </div>
+    </div>
+
+    <!-- 빠른 질문 스크롤 -->
+    <div class="quick-q-bar">
+      <div class="quick-q-label">💬 빠른 질문</div>
+      <div class="quick-q-scroll" id="quickQScroll"></div>
+    </div>
+
+    <!-- 채팅 창 -->
+    <div class="career-chat-box" id="careerChatBox"></div>
+
+    <!-- 입력창 -->
+    <div class="career-input-bar">
+      <input class="career-input" id="careerInput" placeholder="질문을 입력해줘 (예: 소프트웨어 학과 가고 싶어)" maxlength="200"/>
+      <button class="career-send-btn" onclick="sendCareerMsg()">➤</button>
+    </div>
+
+  </div><!-- /tab-career -->
+
+  <!-- 하단 네비게이션 업데이트 (기존 것 덮기) -->
+  <script>
+    // 기존 하단 네비에 퀴즈·진로 탭 연결
+    document.getElementById('nav-2').onclick = () => { switchTab('tab-quiz');   switchNavItem(2); startWordQuiz(); };
+    document.getElementById('nav-3').onclick = () => { switchTab('tab-career'); switchNavItem(3); };
+    document.querySelector('#nav-2 .nav-label').textContent = '⚡ 퀴즈';
+    document.querySelector('#nav-3 .nav-label').textContent = '🎓 진로';
+    document.querySelector('#nav-2 .nav-icon').textContent  = '⚡';
+    document.querySelector('#nav-3 .nav-icon').textContent  = '🎓';
+
+    // 빠른 질문 버튼 렌더링
+    const qs = document.getElementById('quickQScroll');
+    CAREER_QUICK.forEach(q => {
+      const btn = document.createElement('button');
+      btn.className = 'quick-q-btn';
+      btn.textContent = q;
+      btn.onclick = () => quickCareer(q);
+      qs.appendChild(btn);
+    });
+
+    startWordQuiz();
+  </script>
+
+</body>
+</html>

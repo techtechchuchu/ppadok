@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>핏고 - 고등 운동부 관리</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+
+    *{margin:0;padding:0;box-sizing:border-box;}
+
+    :root{
+      --primary:   #1d4ed8;
+      --primary-l: #3b82f6;
+      --primary-p: #eff6ff;
+      --green:     #16a34a;
+      --green-l:   #22c55e;
+      --green-p:   #f0fdf4;
+      --red:       #dc2626;
+      --red-p:     #fef2f2;
+      --orange:    #ea580c;
+      --orange-p:  #fff7ed;
+      --yellow:    #ca8a04;
+      --yellow-p:  #fefce8;
+      --purple:    #7c3aed;
+      --purple-p:  #f5f3ff;
+      --navy:      #0f172a;
+      --white:     #ffffff;
+      --g100:      #f8fafc;
+      --g200:      #f1f5f9;
+      --g300:      #e2e8f0;
+      --g400:      #cbd5e1;
+      --g500:      #94a3b8;
+      --g600:      #64748b;
+      --g700:      #334155;
+      --g800:      #1e293b;
+    }
+
+    body{
+      font-family:'Noto Sans KR',sans-serif;
+      background:var(--g100);
+      color:var(--g700);
+      min-height:100vh;
+      padding-bottom:76px;
+    }
+
+    /* ── 탭 뷰 ── */
+    .tab-view{display:none;}
+    .tab-view.active{display:block;}
+
+    /* ── 헤더 ── */
+    .app-header{
+      background:var(--navy);
+      padding:0 20px;
+      height:56px;
+      display:flex;align-items:center;justify-content:space-between;
+      position:sticky;top:0;z-index:200;
+    }
+
+    .app-logo{
+      display:flex;align-items:center;gap:8px;
+    }
+
+    .logo-box{
+      width:30px;height:30px;border-radius:8px;
+      background:var(--primary-l);
+      display:flex;align-items:center;justify-content:center;
+      font-size:16px;
+    }
+
+    .logo-name{
+      font-size:20px;font-weight:900;color:var(--white);letter-spacing:-0.5px;
+    }
+
+    .logo-name span{color:#60a5fa;}
+
+    .header-date{
+      font-size:12px;color:rgba(255,255,255,0.55);font-weight:500;
+    }
+
+    /* ── 하단 네비 ── */
+    .bottom-nav{
+      position:fixed;bottom:0;left:0;right:0;
+      background:var(--white);
+      border-top:1px solid var(--g300);
+      display:flex;justify-content:space-around;
+      padding:8px 0 6px;z-index:200;
+    }
+
+    .nav-btn{
+      display:flex;flex-direction:column;align-items:center;gap:2px;
+      background:none;border:none;cursor:pointer;
+      font-family:'Noto Sans KR',sans-serif;
+      opacity:.4;transition:opacity .2s;padding:2px 12px;
+    }
+
+    .nav-btn.active{opacity:1;}
+    .nav-btn.active .nav-lbl{color:var(--primary);font-weight:700;}
+
+    .nav-ico{font-size:22px;}
+    .nav-lbl{font-size:10px;color:var(--g600);}
+
+    /* ── 공통 레이아웃 ── */
+    .page-pad{padding:20px 20px 0;}
+
+    .card{
+      background:var(--white);border-radius:16px;
+      padding:18px;margin-bottom:14px;
+      box-shadow:0 2px 8px rgba(0,0,0,.05);
+    }
+
+    .card-title{
+      font-size:15px;font-weight:900;color:var(--navy);
+      margin-bottom:12px;display:flex;align-items:center;gap:6px;
+    }
+
+    .section-label{
+      font-size:11px;font-weight:700;letter-spacing:.8px;
+      color:var(--g500);text-transform:uppercase;margin-bottom:10px;
+    }
+
+    /* 뱃지 */
+    .badge{
+      display:inline-block;font-size:10px;font-weight:700;
+      padding:2px 8px;border-radius:6px;
+    }
+
+    .badge-blue  {background:var(--primary-p);color:var(--primary);}
+    .badge-green {background:var(--green-p);color:var(--green);}
+    .badge-red   {background:var(--red-p);color:var(--red);}
+    .badge-orange{background:var(--orange-p);color:var(--orange);}
+    .badge-purple{background:var(--purple-p);color:var(--purple);}
+
+    /* 버튼 */
+    .btn{
+      border:none;border-radius:12px;padding:14px;
+      font-size:15px;font-weight:900;cursor:pointer;
+      font-family:'Noto Sans KR',sans-serif;
+      width:100%;transition:transform .15s;
+    }
+
+    .btn:hover{transform:translateY(-1px);}
+    .btn-primary{background:var(--primary);color:var(--white);}
+    .btn-green  {background:var(--green-l);color:var(--white);}
+    .btn-red    {background:var(--red);color:var(--white);}
+    .btn-outline{background:var(--white);color:var(--g700);border:1.5px solid var(--g300)!important;}
+    .btn-sm{padding:9px 16px;font-size:13px;width:auto;border-radius:10px;}
+
+    /* 진행 바 */
+    .prog-wrap{margin-bottom:10px;}
+
+    .prog-header{
+      display:flex;justify-content:space-between;
+      font-size:12px;margin-bottom:5px;
+    }
+
+    .prog-label{font-weight:700;color:var(--g700);}
+    .prog-val  {color:var(--g500);}
+
+    .prog-track{
+      height:10px;background:var(--g200);border-radius:10px;overflow:hidden;
+    }
+
+    .prog-fill{
+      height:100%;border-radius:10px;transition:width .6s ease;
+    }
+
+    .fill-blue  {background:var(--primary-l);}
+    .fill-green {background:var(--green-l);}
+    .fill-orange{background:#f97316;}
+    .fill-red   {background:var(--red);}
+    .fill-purple{background:#a78bfa;}
+
+    /* 입력 필드 */
+    .input-row{
+      display:flex;align-items:center;gap:10px;margin-bottom:10px;
+    }
+
+    .input-row label{
+      font-size:13px;font-weight:700;color:var(--g700);
+      min-width:72px;flex-shrink:0;
+    }
+
+    .input-field{
+      flex:1;border:1.5px solid var(--g300);border-radius:10px;
+      padding:10px 12px;font-size:14px;font-weight:500;
+      font-family:'Noto Sans KR',sans-serif;color:var(--navy);
+      outline:none;background:var(--white);
+      transition:border-color .2s;
+    }
+
+    .input-field:focus{border-color:var(--primary);}
+
+    .input-unit{
+      font-size:13px;font-weight:700;color:var(--g500);
+      min-width:24px;
+    }
+
+    /* 토글 스위치 */
+    .toggle-row{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:10px 0;border-bottom:1px solid var(--g200);
+    }
+
+    .toggle-row:last-child{border-bottom:none;}
+
+    .toggle-info{flex:1;}
+    .toggle-title{font-size:14px;font-weight:700;color:var(--navy);}
+    .toggle-sub  {font-size:12px;color:var(--g500);margin-top:2px;}
+
+    .toggle-sw{
+      position:relative;width:44px;height:24px;flex-shrink:0;
+    }
+
+    .toggle-sw input{opacity:0;width:0;height:0;}
+
+    .toggle-track{
+      position:absolute;inset:0;background:var(--g300);
+      border-radius:24px;cursor:pointer;transition:background .2s;
+    }
+
+    .toggle-track::after{
+      content:'';position:absolute;
+      width:18px;height:18px;border-radius:50%;
+      background:var(--white);top:3px;left:3px;
+      transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);
+    }
+
+    .toggle-sw input:checked + .toggle-track{background:var(--primary);}
+    .toggle-sw input:checked + .toggle-track::after{transform:translateX(20px);}
+
+    /* 칩 선택 */
+    .chip-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+
+    .chip{
+      padding:7px 14px;border-radius:18px;
+      border:1.5px solid var(--g300);background:var(--white);
+      font-size:12px;font-weight:700;color:var(--g600);
+      cursor:pointer;font-family:'Noto Sans KR',sans-serif;
+      transition:all .15s;
+    }
+
+    .chip.on{border-color:var(--primary);background:var(--primary-p);color:var(--primary);}
+
+    /* ============================
+       [TAB 0] 홈
+    ============================ */
+
+    /* 히어로 */
+    .home-hero{
+      background:linear-gradient(135deg,#0f172a 0%,#1d4ed8 100%);
+      padding:24px 20px 28px;color:var(--white);
+      position:relative;overflow:hidden;
+    }
+
+    .home-hero::before{
+      content:'';position:absolute;
+      top:-40px;right:-40px;width:180px;height:180px;
+      background:radial-gradient(circle,rgba(96,165,250,.2) 0%,transparent 70%);
+      border-radius:50%;
+    }
+
+    .hero-greeting{font-size:13px;color:rgba(255,255,255,.6);margin-bottom:4px;}
+    .hero-name{font-size:22px;font-weight:900;margin-bottom:2px;}
+    .hero-tag{font-size:12px;color:rgba(255,255,255,.5);}
+
+    /* 오늘 요약 링 */
+    .today-ring-row{
+      display:flex;gap:10px;padding:20px 20px 0;
+    }
+
+    .ring-card{
+      flex:1;background:var(--white);border-radius:14px;
+      padding:14px 10px;text-align:center;
+      box-shadow:0 2px 8px rgba(0,0,0,.05);
+    }
+
+    .ring-emoji{font-size:22px;margin-bottom:4px;}
+
+    .ring-val{
+      font-size:20px;font-weight:900;color:var(--navy);
+      line-height:1;margin-bottom:3px;
+    }
+
+    .ring-lbl{font-size:10px;color:var(--g500);}
+
+    /* 오늘 할 일 체크리스트 */
+    .checklist{display:flex;flex-direction:column;gap:0;}
+
+    .check-item{
+      display:flex;align-items:center;gap:12px;
+      padding:12px 0;border-bottom:1px solid var(--g200);
+      cursor:pointer;
+    }
+
+    .check-item:last-child{border-bottom:none;}
+
+    .check-box{
+      width:22px;height:22px;border-radius:6px;
+      border:2px solid var(--g300);flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;
+      font-size:13px;transition:all .15s;
+    }
+
+    .check-item.done .check-box{
+      background:var(--green-l);border-color:var(--green-l);
+    }
+
+    .check-item.done .check-text{
+      text-decoration:line-through;color:var(--g400);
+    }
+
+    .check-text{font-size:14px;font-weight:500;color:var(--g700);flex:1;}
+    .check-sub {font-size:11px;color:var(--g500);}
+
+    /* 코치 팁 */
+    .coach-tip{
+      background:linear-gradient(135deg,#1e3a5f,#1d4ed8);
+      border-radius:16px;padding:18px;margin-bottom:14px;
+      color:var(--white);
+    }
+
+    .coach-tip-top{
+      display:flex;align-items:center;gap:10px;margin-bottom:10px;
+    }
+
+    .coach-avatar{
+      width:40px;height:40px;border-radius:50%;
+      background:#60a5fa;display:flex;align-items:center;
+      justify-content:center;font-size:20px;flex-shrink:0;
+    }
+
+    .coach-tip-title{font-size:14px;font-weight:900;}
+    .coach-tip-sub  {font-size:11px;color:rgba(255,255,255,.6);margin-top:1px;}
+
+    .coach-tip-msg{
+      font-size:13px;line-height:1.7;color:rgba(255,255,255,.85);
+    }
+
+    .coach-tip-msg strong{color:#93c5fd;}
+
+    /* ============================
+       [TAB 1] 식단
+    ============================ */
+
+    /* 칼로리 요약 */
+    .kcal-summary{
+      background:linear-gradient(135deg,var(--navy),#1d4ed8);
+      border-radius:16px;padding:20px;margin-bottom:14px;
+      color:var(--white);
+    }
+
+    .kcal-main{
+      display:flex;align-items:flex-end;gap:6px;margin-bottom:14px;
+    }
+
+    .kcal-num{font-size:40px;font-weight:900;line-height:1;}
+    .kcal-unit{font-size:14px;color:rgba(255,255,255,.6);padding-bottom:4px;}
+    .kcal-goal{font-size:12px;color:rgba(255,255,255,.5);padding-bottom:5px;}
+
+    .kcal-macros{display:flex;gap:0;}
+
+    .macro-item{
+      flex:1;text-align:center;
+      border-right:1px solid rgba(255,255,255,.15);
+      padding:0 8px;
+    }
+
+    .macro-item:last-child{border-right:none;}
+
+    .macro-val{font-size:16px;font-weight:900;margin-bottom:2px;}
+    .macro-lbl{font-size:10px;color:rgba(255,255,255,.5);}
+
+    /* 급식 기록 카드 */
+    .meal-time-header{
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:10px;
+    }
+
+    .meal-time-title{
+      font-size:14px;font-weight:700;color:var(--navy);
+      display:flex;align-items:center;gap:6px;
+    }
+
+    .meal-food-row{
+      display:flex;align-items:center;gap:8px;
+      padding:10px 0;border-bottom:1px solid var(--g200);
+    }
+
+    .meal-food-row:last-child{border-bottom:none;}
+
+    .food-icon{
+      width:36px;height:36px;border-radius:10px;
+      background:var(--g100);display:flex;align-items:center;
+      justify-content:center;font-size:18px;flex-shrink:0;
+    }
+
+    .food-info{flex:1;}
+    .food-name{font-size:13px;font-weight:700;color:var(--navy);}
+    .food-cal {font-size:11px;color:var(--g500);margin-top:1px;}
+
+    .food-amount{
+      display:flex;align-items:center;gap:6px;
+    }
+
+    .amount-btn{
+      width:26px;height:26px;border-radius:50%;
+      background:var(--g200);border:none;cursor:pointer;
+      font-size:14px;font-weight:700;color:var(--g700);
+      display:flex;align-items:center;justify-content:center;
+    }
+
+    .amount-val{
+      font-size:13px;font-weight:700;color:var(--navy);
+      min-width:20px;text-align:center;
+    }
+
+    /* 먹는 순서 가이드 */
+    .eat-order{
+      display:flex;gap:6px;align-items:center;
+      background:var(--green-p);border-radius:12px;
+      padding:12px 14px;margin-bottom:14px;
+    }
+
+    .eat-order-icon{font-size:20px;flex-shrink:0;}
+
+    .eat-order-text{font-size:12px;color:var(--green);font-weight:700;line-height:1.5;}
+
+    /* 물 섭취 */
+    .water-row{
+      display:flex;align-items:center;gap:10px;
+    }
+
+    .water-cup{
+      font-size:28px;cursor:pointer;transition:transform .1s;
+      user-select:none;
+    }
+
+    .water-cup:active{transform:scale(1.3);}
+    .water-cup.filled{filter:saturate(2);}
+    .water-cup.empty {filter:grayscale(1);opacity:.3;}
+
+    /* ============================
+       [TAB 2] 운동
+    ============================ */
+
+    /* 오늘 훈련 헤더 */
+    .train-hero{
+      background:linear-gradient(135deg,#064e3b,#16a34a);
+      padding:20px;border-radius:16px;margin-bottom:14px;
+      color:var(--white);
+    }
+
+    .train-hero-top{
+      display:flex;justify-content:space-between;
+      align-items:flex-start;margin-bottom:14px;
+    }
+
+    .train-hero-title{font-size:18px;font-weight:900;}
+    .train-hero-sub  {font-size:12px;color:rgba(255,255,255,.6);margin-top:2px;}
+
+    .train-stat-row{display:flex;gap:10px;}
+
+    .train-stat{
+      flex:1;background:rgba(255,255,255,.1);
+      border-radius:10px;padding:10px;text-align:center;
+    }
+
+    .train-stat-val{font-size:18px;font-weight:900;}
+    .train-stat-lbl{font-size:10px;color:rgba(255,255,255,.6);margin-top:2px;}
+
+    /* 운동 아이템 */
+    .exercise-item{
+      display:flex;align-items:center;gap:12px;
+      padding:14px 0;border-bottom:1px solid var(--g200);
+    }
+
+    .exercise-item:last-child{border-bottom:none;}
+
+    .ex-icon{
+      width:44px;height:44px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;
+      font-size:22px;flex-shrink:0;
+    }
+
+    .ex-info{flex:1;}
+    .ex-name{font-size:14px;font-weight:700;color:var(--navy);}
+    .ex-detail{font-size:12px;color:var(--g500);margin-top:2px;}
+
+    .ex-check{
+      width:28px;height:28px;border-radius:50%;
+      border:2px solid var(--g300);background:var(--white);
+      cursor:pointer;display:flex;align-items:center;
+      justify-content:center;font-size:14px;
+      transition:all .15s;flex-shrink:0;
+    }
+
+    .ex-check.done{background:var(--green-l);border-color:var(--green-l);}
+
+    /* 유산소 타이머 */
+    .cardio-card{
+      background:linear-gradient(135deg,#1e3a5f,#1d4ed8);
+      border-radius:16px;padding:20px;margin-bottom:14px;
+      color:var(--white);text-align:center;
+    }
+
+    .timer-display{
+      font-size:52px;font-weight:900;letter-spacing:2px;
+      margin:14px 0;line-height:1;
+    }
+
+    .timer-sub{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:16px;}
+
+    .timer-btns{display:flex;gap:10px;justify-content:center;}
+
+    .timer-btn{
+      padding:12px 24px;border-radius:12px;border:none;
+      font-size:14px;font-weight:700;cursor:pointer;
+      font-family:'Noto Sans KR',sans-serif;transition:transform .1s;
+    }
+
+    .timer-btn:active{transform:scale(.96);}
+    .timer-start{background:#60a5fa;color:var(--navy);}
+    .timer-stop {background:rgba(255,255,255,.15);color:var(--white);}
+    .timer-reset{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);}
+
+    /* 공복 유산소 추천 */
+    .cardio-tip{
+      background:var(--primary-p);border:1.5px solid #bfdbfe;
+      border-radius:12px;padding:12px 14px;margin-bottom:14px;
+      display:flex;gap:10px;align-items:flex-start;
+    }
+
+    .ct-icon{font-size:20px;flex-shrink:0;}
+    .ct-text{font-size:12px;color:var(--primary);font-weight:700;line-height:1.6;}
+
+    /* 근력 세트 입력 */
+    .set-row{
+      display:grid;grid-template-columns:1fr 1fr 1fr auto;
+      gap:8px;align-items:center;margin-bottom:8px;
+    }
+
+    .set-input{
+      border:1.5px solid var(--g300);border-radius:8px;
+      padding:8px;font-size:13px;font-weight:700;
+      text-align:center;font-family:'Noto Sans KR',sans-serif;
+      color:var(--navy);outline:none;
+    }
+
+    .set-input:focus{border-color:var(--primary);}
+
+    .set-del{
+      width:28px;height:28px;border-radius:50%;
+      background:var(--red-p);color:var(--red);
+      border:none;cursor:pointer;font-size:14px;
+      display:flex;align-items:center;justify-content:center;
+    }
+
+    .set-header{
+      display:grid;grid-template-columns:1fr 1fr 1fr auto;
+      gap:8px;margin-bottom:6px;
+    }
+
+    .set-header span{
+      font-size:11px;font-weight:700;color:var(--g500);
+      text-align:center;
+    }
+
+    /* ============================
+       [TAB 3] 체중
+    ============================ */
+
+    /* 체중 입력 */
+    .weight-input-card{
+      background:linear-gradient(135deg,var(--navy),#312e81);
+      border-radius:16px;padding:20px;margin-bottom:14px;
+      color:var(--white);
+    }
+
+    .wi-title{font-size:15px;font-weight:700;margin-bottom:14px;}
+
+    .wi-main{
+      display:flex;align-items:flex-end;gap:6px;margin-bottom:16px;
+    }
+
+    .weight-big-input{
+      font-size:48px;font-weight:900;color:var(--white);
+      background:transparent;border:none;border-bottom:3px solid rgba(255,255,255,.3);
+      width:120px;outline:none;font-family:'Noto Sans KR',sans-serif;
+      padding-bottom:4px;
+    }
+
+    .weight-big-unit{font-size:18px;color:rgba(255,255,255,.6);padding-bottom:8px;}
+
+    .wi-diff{
+      font-size:13px;font-weight:700;padding:4px 10px;
+      border-radius:8px;margin-left:auto;
+    }
+
+    .diff-down{background:rgba(34,197,94,.2);color:#86efac;}
+    .diff-up  {background:rgba(239,68,68,.2);color:#fca5a5;}
+    .diff-same{background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);}
+
+    /* 차트 */
+    .chart-wrap{
+      position:relative;height:160px;
+      display:flex;align-items:flex-end;gap:4px;
+      padding:0 4px;margin-bottom:8px;
+    }
+
+    .chart-bar-wrap{
+      flex:1;display:flex;flex-direction:column;
+      align-items:center;gap:4px;height:100%;justify-content:flex-end;
+    }
+
+    .chart-bar{
+      width:100%;border-radius:4px 4px 0 0;
+      background:var(--primary-p);
+      transition:height .6s ease;position:relative;cursor:pointer;
+    }
+
+    .chart-bar.today{background:var(--primary-l);}
+    .chart-bar.goal-line{background:#fbbf24;}
+
+    .chart-bar:hover::after{
+      content:attr(data-val);
+      position:absolute;top:-22px;left:50%;transform:translateX(-50%);
+      font-size:10px;font-weight:700;color:var(--primary);
+      background:var(--white);padding:2px 6px;border-radius:6px;
+      box-shadow:0 1px 4px rgba(0,0,0,.1);white-space:nowrap;
+    }
+
+    .chart-day{font-size:9px;color:var(--g500);}
+    .chart-day.today{color:var(--primary);font-weight:700;}
+
+    /* 목표 vs 현재 */
+    .goal-row{
+      display:flex;gap:10px;margin-bottom:14px;
+    }
+
+    .goal-card{
+      flex:1;background:var(--white);border-radius:14px;
+      padding:14px 12px;text-align:center;
+      box-shadow:0 2px 8px rgba(0,0,0,.05);
+    }
+
+    .goal-card .gc-label{font-size:11px;color:var(--g500);margin-bottom:4px;}
+    .goal-card .gc-val  {font-size:22px;font-weight:900;color:var(--navy);}
+    .goal-card .gc-unit {font-size:12px;color:var(--g500);}
+    .goal-card .gc-diff {font-size:11px;font-weight:700;margin-top:3px;}
+
+    /* 신체 지표 */
+    .body-metrics{display:flex;flex-direction:column;gap:10px;}
+
+    .bm-row{
+      display:flex;align-items:center;gap:10px;
+    }
+
+    .bm-icon{font-size:20px;flex-shrink:0;width:32px;text-align:center;}
+    .bm-info{flex:1;}
+    .bm-name{font-size:13px;font-weight:700;color:var(--navy);}
+    .bm-val {font-size:12px;color:var(--g500);margin-top:1px;}
+
+    .bm-status{
+      font-size:11px;font-weight:700;padding:3px 8px;border-radius:7px;
+    }
+
+    /* 코치 조언 */
+    .advice-card{
+      border-radius:14px;padding:16px;margin-bottom:10px;
+    }
+
+    .advice-card.good  {background:var(--green-p);border:1px solid #bbf7d0;}
+    .advice-card.warn  {background:var(--orange-p);border:1px solid #fed7aa;}
+    .advice-card.info  {background:var(--primary-p);border:1px solid #bfdbfe;}
+
+    .advice-title{font-size:13px;font-weight:700;margin-bottom:4px;}
+    .advice-card.good .advice-title {color:var(--green);}
+    .advice-card.warn .advice-title {color:var(--orange);}
+    .advice-card.info .advice-title {color:var(--primary);}
+
+    .advice-text{font-size:12px;line-height:1.65;color:var(--g700);}
+
+    /* ============================
+       모달
+    ============================ */
+    .modal-overlay{
+      display:none;position:fixed;inset:0;
+      background:rgba(0,0,0,.5);z-index:500;
+      align-items:flex-end;justify-content:center;
+    }
+
+    .modal-overlay.open{display:flex;}
+
+    .modal-sheet{
+      background:var(--white);border-radius:20px 20px 0 0;
+      padding:20px;width:100%;max-height:80vh;overflow-y:auto;
+      animation:slideUp .25s ease;
+    }
+
+    @keyframes slideUp{
+      from{transform:translateY(100%);}
+      to{transform:translateY(0);}
+    }
+
+    .modal-handle{
+      width:40px;height:4px;background:var(--g300);
+      border-radius:4px;margin:0 auto 16px;
+    }
+
+    .modal-title{
+      font-size:17px;font-weight:900;color:var(--navy);margin-bottom:16px;
+    }
+
+    /* 애니메이션 */
+    @keyframes fadeInUp{
+      from{opacity:0;transform:translateY(12px);}
+      to{opacity:1;transform:translateY(0);}
+    }
+
+    .fade-in{animation:fadeInUp .35s ease both;}
+
+    @media(min-width:600px){
+      body{max-width:480px;margin:0 auto;}
+      .bottom-nav{max-width:480px;left:50%;transform:translateX(-50%);}
+      .app-header{max-width:480px;left:50%;transform:translateX(-50%);position:fixed;}
+      body{padding-top:56px;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================
+     공통 헤더
+============================ -->
+<header class="app-header">
+  <div class="app-logo">
+    <div class="logo-box">🏃</div>
+    <span class="logo-name">핏<span>고</span></span>
+  </div>
+  <span class="header-date" id="headerDate"></span>
+</header>
+
+
+<!-- ============================
+     TAB 0: 홈
+============================ -->
+<div class="tab-view active" id="tab-home">
+
+  <!-- 히어로 -->
+  <div class="home-hero">
+    <div class="hero-greeting">안녕,</div>
+    <div class="hero-name">오늘도 잘 해보자 💪</div>
+    <div class="hero-tag">체육고 운동부 · 관리 <span id="dayCount">1</span>일차</div>
+  </div>
+
+  <!-- 오늘 요약 링 -->
+  <div class="today-ring-row">
+    <div class="ring-card">
+      <div class="ring-emoji">🔥</div>
+      <div class="ring-val" id="home-kcal">0</div>
+      <div class="ring-lbl">섭취 kcal</div>
+    </div>
+    <div class="ring-card">
+      <div class="ring-emoji">💧</div>
+      <div class="ring-val" id="home-water">0/8</div>
+      <div class="ring-lbl">물 컵</div>
+    </div>
+    <div class="ring-card">
+      <div class="ring-emoji">⚖️</div>
+      <div class="ring-val" id="home-weight">-</div>
+      <div class="ring-lbl">오늘 체중</div>
+    </div>
+    <div class="ring-card">
+      <div class="ring-emoji">✅</div>
+      <div class="ring-val" id="home-done">0/5</div>
+      <div class="ring-lbl">오늘 목표</div>
+    </div>
+  </div>
+
+  <!-- 오늘 할 일 -->
+  <div class="page-pad">
+    <div class="card">
+      <div class="card-title">📋 오늘 할 일</div>
+      <div class="checklist" id="checklistEl">
+        <div class="check-item" data-id="0" onclick="toggleCheck(this)">
+          <div class="check-box"></div>
+          <div>
+            <div class="check-text">공복 유산소 20분</div>
+            <div class="check-sub">기상 후 · 저강도 조깅</div>
+          </div>
+        </div>
+        <div class="check-item" data-id="1" onclick="toggleCheck(this)">
+          <div class="check-box"></div>
+          <div>
+            <div class="check-text">아침 급식 - 밥 절반</div>
+            <div class="check-sub">채소 → 단백질 → 탄수화물 순서</div>
+          </div>
+        </div>
+        <div class="check-item" data-id="2" onclick="toggleCheck(this)">
+          <div class="check-box"></div>
+          <div>
+            <div class="check-text">훈련 직후 단백질 섭취</div>
+            <div class="check-sub">달걀·고기·두부 중 하나</div>
+          </div>
+        </div>
+        <div class="check-item" data-id="3" onclick="toggleCheck(this)">
+          <div class="check-box"></div>
+          <div>
+            <div class="check-text">물 8컵 마시기</div>
+            <div class="check-sub">하루 1.5~2L 목표</div>
+          </div>
+        </div>
+        <div class="check-item" data-id="4" onclick="toggleCheck(this)">
+          <div class="check-box"></div>
+          <div>
+            <div class="check-text">체중 기록하기</div>
+            <div class="check-sub">기상 직후 · 같은 조건에서</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 코치 오늘의 팁 -->
+    <div class="coach-tip">
+      <div class="coach-tip-top">
+        <div class="coach-avatar">🧑‍🏫</div>
+        <div>
+          <div class="coach-tip-title">AI 코치 오늘의 조언</div>
+          <div class="coach-tip-sub">체중 목표 달성을 위한 팁</div>
+        </div>
+      </div>
+      <div class="coach-tip-msg" id="coachTip">
+        운동하면 <strong>근육이 붙고 체중이 안 줄어도 정상</strong>이야.
+        체중계 숫자보다 <strong>체지방률과 몸 상태</strong>에 집중해.
+        오늘 공복 유산소 20분 + 급식 밥 절반 + 물 2L를 지키면
+        이번 주 안에 변화를 느낄 수 있어.
+      </div>
+    </div>
+
+    <!-- 오늘 영양 요약 -->
+    <div class="card">
+      <div class="card-title">🥗 오늘 영양 진행</div>
+      <div class="prog-wrap">
+        <div class="prog-header">
+          <span class="prog-label">칼로리</span>
+          <span class="prog-val" id="prog-kcal-val">0 / 2000 kcal</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill fill-blue" id="prog-kcal" style="width:0%"></div></div>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-header">
+          <span class="prog-label">단백질</span>
+          <span class="prog-val" id="prog-prot-val">0 / 120 g</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill fill-green" id="prog-prot" style="width:0%"></div></div>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-header">
+          <span class="prog-label">탄수화물</span>
+          <span class="prog-val" id="prog-carb-val">0 / 200 g</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill fill-orange" id="prog-carb" style="width:0%"></div></div>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-header">
+          <span class="prog-label">지방</span>
+          <span class="prog-val" id="prog-fat-val">0 / 60 g</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill fill-purple" id="prog-fat" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+</div><!-- /tab-home -->
+
+
+<!-- ============================
+     TAB 1: 식단
+============================ -->
+<div class="tab-view" id="tab-diet">
+  <div class="page-pad">
+
+    <!-- 칼로리 요약 -->
+    <div class="kcal-summary">
+      <div class="kcal-main">
+        <div class="kcal-num" id="diet-kcal-num">0</div>
+        <div class="kcal-unit">kcal</div>
+        <div class="kcal-goal">/ 목표 2000</div>
+      </div>
+      <div class="kcal-macros">
+        <div class="macro-item">
+          <div class="macro-val" id="d-prot">0g</div>
+          <div class="macro-lbl">단백질</div>
+        </div>
+        <div class="macro-item">
+          <div class="macro-val" id="d-carb">0g</div>
+          <div class="macro-lbl">탄수화물</div>
+        </div>
+        <div class="macro-item">
+          <div class="macro-val" id="d-fat">0g</div>
+          <div class="macro-lbl">지방</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 먹는 순서 가이드 -->
+    <div class="eat-order">
+      <div class="eat-order-icon">🥗</div>
+      <div class="eat-order-text">
+        먹는 순서: <strong>채소 → 단백질 → 탄수화물(밥)</strong><br>
+        혈당이 천천히 올라 지방 축적이 줄어들어
+      </div>
+    </div>
+
+    <!-- 아침 급식 -->
+    <div class="card">
+      <div class="meal-time-header">
+        <div class="meal-time-title">🌅 아침 급식</div>
+        <button class="btn btn-primary btn-sm" onclick="openMealModal('아침')">+ 추가</button>
+      </div>
+      <div id="meal-morning">
+        <div class="meal-food-row">
+          <div class="food-icon">🍚</div>
+          <div class="food-info">
+            <div class="food-name">흰쌀밥</div>
+            <div class="food-cal">300kcal · 탄수화물 67g</div>
+          </div>
+          <div class="food-amount">
+            <button class="amount-btn" onclick="adjustFood(this,-1)">−</button>
+            <span class="amount-val">1</span>
+            <button class="amount-btn" onclick="adjustFood(this,1)">+</button>
+          </div>
+        </div>
+        <div class="meal-food-row">
+          <div class="food-icon">🥚</div>
+          <div class="food-info">
+            <div class="food-name">삶은 달걀</div>
+            <div class="food-cal">78kcal · 단백질 6g</div>
+          </div>
+          <div class="food-amount">
+            <button class="amount-btn" onclick="adjustFood(this,-1)">−</button>
+            <span class="amount-val">2</span>
+            <button class="amount-btn" onclick="adjustFood(this,1)">+</button>
+          </div>
+        </div>
+        <div class="meal-food-row">
+          <div class="food-icon">🥬</div>
+          <div class="food-info">
+            <div class="food-name">나물 반찬</div>
+            <div class="food-cal">45kcal · 식이섬유 풍부</div>
+          </div>
+          <div class="food-amount">
+            <button class="amount-btn" onclick="adjustFood(this,-1)">−</button>
+            <span class="amount-val">1</span>
+            <button class="amount-btn" onclick="adjustFood(this,1)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 점심 급식 -->
+    <div class="card">
+      <div class="meal-time-header">
+        <div class="meal-time-title">☀️ 점심 급식</div>
+        <button class="btn btn-primary btn-sm" onclick="openMealModal('점심')">+ 추가</button>
+      </div>
+      <div id="meal-lunch">
+        <div class="meal-food-row">
+          <div class="food-icon">🍚</div>
+          <div class="food-info">
+            <div class="food-name">흰쌀밥 (절반)</div>
+            <div class="food-cal">150kcal · 탄수화물 34g</div>
+          </div>
+          <div class="food-amount">
+            <button class="amount-btn" onclick="adjustFood(this,-1)">−</button>
+            <span class="amount-val">1</span>
+            <button class="amount-btn" onclick="adjustFood(this,1)">+</button>
+          </div>
+        </div>
+        <div class="meal-food-row">
+          <div class="food-icon">🍗</div>
+          <div class="food-info">
+            <div class="food-name">닭가슴살 반찬</div>
+            <div class="food-cal">165kcal · 단백질 31g</div>
+          </div>
+          <div class="food-amount">
+            <button class="amount-btn" onclick="adjustFood(this,-1)">−</button>
+            <span class="amount-val">1</span>
+            <button class="amount-btn" onclick="adjustFood(this,1)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 저녁 급식 -->
+    <div class="card">
+      <div class="meal-time-header">
+        <div class="meal-time-title">🌙 저녁 급식</div>
+        <button class="btn btn-primary btn-sm" onclick="openMealModal('저녁')">+ 추가</button>
+      </div>
+      <div id="meal-dinner">
+        <div class="meal-food-row">
+          <div class="food-icon">🍚</div>
+          <div class="food-info">
+            <div class="food-name">흰쌀밥 (절반)</div>
+            <div class="food-cal">150kcal · 탄수화물 34g</div>
+          </div>
+          <div class="food-amount">
+            <button class="amount-btn" onclick="adjustFood(this,-1)">−</button>
+            <span class="amount-val">1</span>
+            <button class="amount-btn" onclick="adjustFood(this,1)">+</button>
+          </div>
+        </div>
+        <div class="meal-food-row">
+          <div class="food-icon">🐟</div>
+          <div class="food-info">
+            <div class="food-name">생선 구이</div>
+            <div class="food-cal">130kcal · 단백질 20g · 오메가3</div>
+          </div>
+          <div class="food-amount">
+            <button class="amount-btn" onclick="adjustFood(this,-1)">−</button>
+            <span class="amount-val">1</span>
+            <button class="amount-btn" onclick="adjustFood(this,1)">+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 물 섭취 -->
+    <div class="card">
+      <div class="card-title">💧 물 섭취 기록</div>
+      <div style="font-size:12px;color:var(--g500);margin-bottom:12px;">
+        컵을 탭하면 마신 것으로 기록돼 (1컵 = 250ml)
+      </div>
+      <div class="water-row" id="waterCups">
+        <!-- JS 렌더링 -->
+      </div>
+      <div style="margin-top:10px;font-size:13px;font-weight:700;color:var(--primary);">
+        <span id="waterCount">0</span> / 8컵 완료
+        <span style="font-size:11px;color:var(--g500);font-weight:400;"> (목표 2L)</span>
+      </div>
+    </div>
+
+    <!-- 급식 먹는 팁 -->
+    <div class="card">
+      <div class="card-title">💡 급식 활용 꿀팁</div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-title">밥 절반만 퍼기</div>
+          <div class="toggle-sub">탄수화물 섭취 자연스럽게 줄이기</div>
+        </div>
+        <label class="toggle-sw"><input type="checkbox" checked><div class="toggle-track"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-title">국물 조금만 마시기</div>
+          <div class="toggle-sub">나트륨 → 부기 유발 감소</div>
+        </div>
+        <label class="toggle-sw"><input type="checkbox" checked><div class="toggle-track"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-title">튀김류 절반 남기기</div>
+          <div class="toggle-sub">불필요한 지방 섭취 줄이기</div>
+        </div>
+        <label class="toggle-sw"><input type="checkbox"><div class="toggle-track"></div></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-title">훈련 후 단백질 우선</div>
+          <div class="toggle-sub">근육 유지하며 체지방만 감소</div>
+        </div>
+        <label class="toggle-sw"><input type="checkbox" checked><div class="toggle-track"></div></label>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /tab-diet -->
+
+
+<!-- ============================
+     TAB 2: 운동
+============================ -->
+<div class="tab-view" id="tab-exercise">
+  <div class="page-pad">
+
+    <!-- 오늘 훈련 헤더 -->
+    <div class="train-hero">
+      <div class="train-hero-top">
+        <div>
+          <div class="train-hero-title">오늘 훈련</div>
+          <div class="train-hero-sub" id="trainDate">로딩 중...</div>
+        </div>
+        <span class="badge badge-green">진행 중</span>
+      </div>
+      <div class="train-stat-row">
+        <div class="train-stat">
+          <div class="train-stat-val" id="ex-done-count">0</div>
+          <div class="train-stat-lbl">완료 운동</div>
+        </div>
+        <div class="train-stat">
+          <div class="train-stat-val" id="cardio-done">0분</div>
+          <div class="train-stat-lbl">유산소</div>
+        </div>
+        <div class="train-stat">
+          <div class="train-stat-val" id="ex-kcal-burn">0</div>
+          <div class="train-stat-lbl">소모 kcal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 공복 유산소 타이머 -->
+    <div class="cardio-tip">
+      <div class="ct-icon">⭐</div>
+      <div class="ct-text">
+        공복 유산소 추천: 기상 직후 20~30분<br>
+        강도: 숨은 차지만 대화 가능한 수준 (지방 연소 최적화)
+      </div>
+    </div>
+
+    <div class="cardio-card">
+      <div style="font-size:15px;font-weight:900;">🏃 유산소 타이머</div>
+      <div class="timer-display" id="timerDisplay">00:00</div>
+      <div class="timer-sub">목표: 20분 · 저강도 유산소</div>
+      <div class="timer-btns">
+        <button class="timer-btn timer-start" id="timerStartBtn" onclick="toggleTimer()">▶ 시작</button>
+        <button class="timer-btn timer-reset" onclick="resetTimer()">↺ 초기화</button>
+      </div>
+    </div>
+
+    <!-- 오늘 훈련 목록 -->
+    <div class="card">
+      <div class="card-title">💪 오늘 훈련 목록</div>
+      <div id="exerciseList">
+        <div class="exercise-item">
+          <div class="ex-icon" style="background:#e0f2fe">🏃</div>
+          <div class="ex-info">
+            <div class="ex-name">인터벌 달리기</div>
+            <div class="ex-detail">30분 · 고강도 훈련</div>
+          </div>
+          <div class="ex-check" onclick="toggleExCheck(this)"></div>
+        </div>
+        <div class="exercise-item">
+          <div class="ex-icon" style="background:#f0fdf4">🦵</div>
+          <div class="ex-info">
+            <div class="ex-name">스쿼트</div>
+            <div class="ex-detail">3세트 × 15회</div>
+          </div>
+          <div class="ex-check" onclick="toggleExCheck(this)"></div>
+        </div>
+        <div class="exercise-item">
+          <div class="ex-icon" style="background:#fdf4ff">💪</div>
+          <div class="ex-info">
+            <div class="ex-name">푸쉬업</div>
+            <div class="ex-detail">3세트 × 20회</div>
+          </div>
+          <div class="ex-check" onclick="toggleExCheck(this)"></div>
+        </div>
+        <div class="exercise-item">
+          <div class="ex-icon" style="background:#fff7ed">🧘</div>
+          <div class="ex-info">
+            <div class="ex-name">스트레칭</div>
+            <div class="ex-detail">훈련 후 10분</div>
+          </div>
+          <div class="ex-check" onclick="toggleExCheck(this)"></div>
+        </div>
+      </div>
+      <button class="btn btn-outline" style="margin-top:12px" onclick="openExModal()">+ 운동 추가하기</button>
+    </div>
+
+    <!-- 근력 세트 기록 -->
+    <div class="card">
+      <div class="card-title">📊 근력 세트 기록</div>
+      <div class="chip-row" id="liftChips">
+        <div class="chip on" onclick="selectLift(this,'스쿼트')">스쿼트</div>
+        <div class="chip" onclick="selectLift(this,'벤치프레스')">벤치프레스</div>
+        <div class="chip" onclick="selectLift(this,'데드리프트')">데드리프트</div>
+        <div class="chip" onclick="selectLift(this,'풀업')">풀업</div>
+      </div>
+      <div class="set-header">
+        <span>세트</span><span>무게(kg)</span><span>횟수</span><span></span>
+      </div>
+      <div id="setRows">
+        <div class="set-row">
+          <input class="set-input" value="1" readonly/>
+          <input class="set-input" placeholder="60"/>
+          <input class="set-input" placeholder="12"/>
+          <button class="set-del" onclick="delSet(this)">✕</button>
+        </div>
+        <div class="set-row">
+          <input class="set-input" value="2" readonly/>
+          <input class="set-input" placeholder="60"/>
+          <input class="set-input" placeholder="12"/>
+          <button class="set-del" onclick="delSet(this)">✕</button>
+        </div>
+        <div class="set-row">
+          <input class="set-input" value="3" readonly/>
+          <input class="set-input" placeholder="60"/>
+          <input class="set-input" placeholder="12"/>
+          <button class="set-del" onclick="delSet(this)">✕</button>
+        </div>
+      </div>
+      <button class="btn btn-outline" style="margin-top:10px;font-size:13px;padding:10px" onclick="addSet()">+ 세트 추가</button>
+    </div>
+
+  </div>
+</div><!-- /tab-exercise -->
+
+
+<!-- ============================
+     TAB 3: 체중
+============================ -->
+<div class="tab-view" id="tab-weight">
+  <div class="page-pad">
+
+    <!-- 체중 입력 -->
+    <div class="weight-input-card">
+      <div class="wi-title">⚖️ 오늘 체중 기록 (기상 직후)</div>
+      <div class="wi-main">
+        <input class="weight-big-input" id="weightInput" type="number"
+               placeholder="68.5" step="0.1" min="30" max="200"
+               oninput="onWeightInput(this.value)"/>
+        <div class="weight-big-unit">kg</div>
+        <div class="wi-diff" id="weightDiff" style="display:none"></div>
+      </div>
+      <button class="btn" style="background:#60a5fa;color:#0f172a;font-size:14px;padding:12px"
+              onclick="saveWeight()">💾 오늘 체중 저장</button>
+    </div>
+
+    <!-- 목표 vs 현재 -->
+    <div class="goal-row">
+      <div class="goal-card">
+        <div class="gc-label">현재 체중</div>
+        <div class="gc-val" id="gc-current">-</div>
+        <div class="gc-unit">kg</div>
+        <div class="gc-diff" id="gc-diff" style="color:var(--g500)">목표까지 -kg</div>
+      </div>
+      <div class="goal-card">
+        <div class="gc-label">목표 체중</div>
+        <div class="gc-val" id="gc-goal">-</div>
+        <div class="gc-unit">kg</div>
+        <div class="gc-diff" style="color:var(--g500)">설정하기 →</div>
+      </div>
+      <div class="goal-card">
+        <div class="gc-label">지난주 대비</div>
+        <div class="gc-val" id="gc-week">-</div>
+        <div class="gc-unit">kg</div>
+        <div class="gc-diff" id="gc-week-diff" style="color:var(--g500)">변화량</div>
+      </div>
+    </div>
+
+    <!-- 체중 차트 -->
+    <div class="card">
+      <div class="card-title">📈 최근 7일 체중 변화</div>
+      <div class="chart-wrap" id="weightChart"></div>
+      <div style="font-size:11px;color:var(--g500);text-align:center;margin-top:4px;">
+        최근 7일 기록 (kg)
+      </div>
+    </div>
+
+    <!-- 목표 체중 설정 -->
+    <div class="card">
+      <div class="card-title">🎯 목표 체중 설정</div>
+      <div class="input-row">
+        <label>목표 체중</label>
+        <input class="input-field" id="goalWeightInput" type="number"
+               placeholder="65.0" step="0.1" min="30" max="200"/>
+        <span class="input-unit">kg</span>
+      </div>
+      <div class="input-row">
+        <label>목표 기간</label>
+        <input class="input-field" id="goalWeekInput" type="number"
+               placeholder="8" min="1" max="52"/>
+        <span class="input-unit">주</span>
+      </div>
+      <button class="btn btn-primary" onclick="saveGoal()" style="margin-top:4px">저장하기</button>
+    </div>
+
+    <!-- 신체 지표 -->
+    <div class="card">
+      <div class="card-title">📊 신체 지표</div>
+      <div class="body-metrics">
+        <div class="bm-row">
+          <div class="bm-icon">📏</div>
+          <div class="bm-info">
+            <div class="bm-name">BMI</div>
+            <div class="bm-val" id="bmi-val">체중과 키를 입력하면 계산돼</div>
+          </div>
+          <div class="bm-status badge badge-blue" id="bmi-status">-</div>
+        </div>
+        <div class="bm-row" style="padding-top:10px;">
+          <div class="bm-icon">📐</div>
+          <div class="bm-info">
+            <div class="bm-name">키 입력</div>
+            <div class="bm-val">BMI 계산에 필요해</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input class="set-input" id="heightInput" type="number"
+                   placeholder="175" style="width:70px;" oninput="calcBMI()"/>
+            <span style="font-size:12px;color:var(--g500)">cm</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI 코치 체중 조언 -->
+    <div class="card">
+      <div class="card-title">🧑‍🏫 AI 코치 체중 조언</div>
+
+      <div class="advice-card good">
+        <div class="advice-title">✅ 운동하면 근육이 붙는 건 좋은 신호야</div>
+        <div class="advice-text">
+          체중이 줄지 않아도 근육이 늘면 체지방이 감소한 거야.
+          체중계 숫자만 보지 말고 <strong>몸의 변화</strong>를 느껴봐.
+        </div>
+      </div>
+
+      <div class="advice-card warn">
+        <div class="advice-title">⚠️ 일주일에 0.5kg 이상 빠지면 속도 줄여</div>
+        <div class="advice-text">
+          너무 빠르게 빠지면 근육까지 분해돼서
+          오히려 운동 수행능력이 떨어질 수 있어.
+          주 0.3~0.5kg 감량이 가장 안전한 속도야.
+        </div>
+      </div>
+
+      <div class="advice-card info">
+        <div class="advice-title">💡 체중은 아침 기상 직후에 측정해</div>
+        <div class="advice-text">
+          같은 조건(기상 직후, 화장실 다녀온 뒤, 옷 벗고)에서 측정해야
+          정확하게 비교할 수 있어.
+          밥·물만 마셔도 1~2kg 차이 날 수 있거든.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /tab-weight -->
+
+
+<!-- ============================
+     하단 네비게이션
+============================ -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-0" onclick="switchTab(0)">
+    <div class="nav-ico">🏠</div>
+    <div class="nav-lbl">홈</div>
+  </button>
+  <button class="nav-btn" id="nav-1" onclick="switchTab(1)">
+    <div class="nav-ico">🍱</div>
+    <div class="nav-lbl">식단</div>
+  </button>
+  <button class="nav-btn" id="nav-2" onclick="switchTab(2)">
+    <div class="nav-ico">💪</div>
+    <div class="nav-lbl">운동</div>
+  </button>
+  <button class="nav-btn" id="nav-3" onclick="switchTab(3)">
+    <div class="nav-ico">⚖️</div>
+    <div class="nav-lbl">체중</div>
+  </button>
+</nav>
+
+
+<!-- ============================
+     식단 추가 모달
+============================ -->
+<div class="modal-overlay" id="mealModal" onclick="closeMealModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="mealModalTitle">🍽️ 아침 음식 추가</div>
+    <div class="chip-row" id="foodChips">
+      <div class="chip on" onclick="toggleFoodChip(this)">🍚 흰쌀밥</div>
+      <div class="chip" onclick="toggleFoodChip(this)">🍗 닭가슴살</div>
+      <div class="chip" onclick="toggleFoodChip(this)">🥚 달걀</div>
+      <div class="chip" onclick="toggleFoodChip(this)">🐟 생선구이</div>
+      <div class="chip" onclick="toggleFoodChip(this)">🥬 나물</div>
+      <div class="chip" onclick="toggleFoodChip(this)">🍲 된장국</div>
+      <div class="chip" onclick="toggleFoodChip(this)">🥩 소불고기</div>
+      <div class="chip" onclick="toggleFoodChip(this)">🫘 두부</div>
+      <div class="chip" onclick="toggleFoodChip(this)">🥦 브로콜리</div>
+      <div class="chip" onclick="toggleFoodChip(this)">🍠 고구마</div>
+    </div>
+    <div class="input-row">
+      <label>직접 입력</label>
+      <input class="input-field" id="customFoodInput" placeholder="음식 이름"/>
+    </div>
+    <button class="btn btn-primary" style="margin-top:8px" onclick="closeMealModal(null,true)">추가 완료</button>
+  </div>
+</div>
+
+<!-- ============================
+     운동 추가 모달
+============================ -->
+<div class="modal-overlay" id="exModal" onclick="closeExModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💪 운동 추가하기</div>
+    <div class="chip-row">
+      <div class="chip on" onclick="toggleFoodChip(this)">🏃 달리기</div>
+      <div class="chip" onclick="toggleFoodChip(this)">🚴 자전거</div>
+      <div class="chip" onclick="toggleFoodChip(this)">🏊 수영</div>
+      <div class="chip" onclick="toggleFoodChip(this)">🦵 스쿼트</div>
+      <div class="chip" onclick="toggleFoodChip(this)">💪 푸쉬업</div>
+      <div class="chip" onclick="toggleFoodChip(this)">🏋️ 데드리프트</div>
+      <div class="chip" onclick="toggleFoodChip(this)">🧘 스트레칭</div>
+      <div class="chip" onclick="toggleFoodChip(this)">⚽ 볼 훈련</div>
+    </div>
+    <div class="input-row">
+      <label>종목명</label>
+      <input class="input-field" id="exNameInput" placeholder="종목 직접 입력"/>
+    </div>
+    <div class="input-row">
+      <label>시간/세트</label>
+      <input class="input-field" id="exDetailInput" placeholder="30분 또는 3세트×15회"/>
+    </div>
+    <button class="btn btn-green" style="margin-top:8px" onclick="addExercise()">추가 완료</button>
+  </div>
+</div>
+
+
+<script>
+/* =====================================================
+   상태 & 데이터
+===================================================== */
+const state = {
+  water: 0,
+  checks: [false,false,false,false,false],
+  weightLog: [68.5,68.3,68.1,68.4,67.9,67.7,null], // 최근 7일 (오늘=null 입력 전)
+  goalWeight: null,
+  currentWeight: null,
+  timerSeconds: 0,
+  timerRunning: false,
+  timerInterval: null,
+  cardioDoneSeconds: 0,
+  exDoneCount: 0,
+  currentMealTime: '아침',
+};
+
+/* =====================================================
+   초기화
+===================================================== */
+window.addEventListener('DOMContentLoaded', () => {
+  // 날짜
+  const now = new Date();
+  const days = ['일','월','화','수','목','금','토'];
+  const dateStr = `${now.getMonth()+1}월 ${now.getDate()}일 (${days[now.getDay()]})`;
+  document.getElementById('headerDate').textContent = dateStr;
+  document.getElementById('trainDate').textContent = dateStr + ' 훈련';
+
+  // 물컵 렌더링
+  renderWaterCups();
+
+  // 체중 차트 렌더링
+  renderWeightChart();
+
+  // 영양 진행바 업데이트
+  updateNutrition();
+});
+
+/* =====================================================
+   탭 전환
+===================================================== */
+const TABS = ['tab-home','tab-diet','tab-exercise','tab-weight'];
+
+function switchTab(idx) {
+  TABS.forEach((id,i) => {
+    document.getElementById(id).classList.toggle('active', i===idx);
+  });
+  document.querySelectorAll('.nav-btn').forEach((btn,i) => {
+    btn.classList.toggle('active', i===idx);
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* =====================================================
+   체크리스트
+===================================================== */
+function toggleCheck(el) {
+  el.classList.toggle('done');
+  const id = parseInt(el.dataset.id);
+  state.checks[id] = el.classList.contains('done');
+  if (el.classList.contains('done')) el.querySelector('.check-box').textContent = '✓';
+  else el.querySelector('.check-box').textContent = '';
+  updateHomeStats();
+}
+
+/* =====================================================
+   물 컵
+===================================================== */
+function renderWaterCups() {
+  const wrap = document.getElementById('waterCups');
+  wrap.innerHTML = '';
+  for (let i=0;i<8;i++) {
+    const cup = document.createElement('span');
+    cup.className = 'water-cup ' + (i < state.water ? 'filled' : 'empty');
+    cup.textContent = '🥤';
+    cup.onclick = () => {
+      state.water = (state.water === i+1) ? i : i+1;
+      renderWaterCups();
+      document.getElementById('waterCount').textContent = state.water;
+      updateHomeStats();
+    };
+    wrap.appendChild(cup);
+  }
+}
+
+/* =====================================================
+   홈 통계 업데이트
+===================================================== */
+function updateHomeStats() {
+  document.getElementById('home-water').textContent = state.water + '/8';
+  const done = state.checks.filter(Boolean).length;
+  document.getElementById('home-done').textContent = done + '/5';
+  if (state.currentWeight) {
+    document.getElementById('home-weight').textContent = state.currentWeight + 'kg';
+  }
+}
+
+/* =====================================================
+   영양 진행바 (샘플 데이터)
+===================================================== */
+function updateNutrition() {
+  const kcal=1240, prot=68, carb=135, fat=32;
+  document.getElementById('diet-kcal-num').textContent = kcal;
+  document.getElementById('home-kcal').textContent = kcal;
+  document.getElementById('d-prot').textContent = prot+'g';
+  document.getElementById('d-carb').textContent = carb+'g';
+  document.getElementById('d-fat').textContent = fat+'g';
+
+  setBar('prog-kcal', kcal, 2000, 'prog-kcal-val', `${kcal} / 2000 kcal`);
+  setBar('prog-prot', prot, 120, 'prog-prot-val', `${prot} / 120 g`);
+  setBar('prog-carb', carb, 200, 'prog-carb-val', `${carb} / 200 g`);
+  setBar('prog-fat',  fat,  60,  'prog-fat-val',  `${fat} / 60 g`);
+}
+
+function setBar(barId, val, max, labelId, text) {
+  const pct = Math.min(Math.round(val/max*100), 100);
+  document.getElementById(barId).style.width = pct + '%';
+  document.getElementById(labelId).textContent = text;
+}
+
+/* =====================================================
+   음식량 조절 버튼
+===================================================== */
+function adjustFood(btn, delta) {
+  const valEl = btn.parentElement.querySelector('.amount-val');
+  let v = parseInt(valEl.textContent) + delta;
+  if (v < 0) v = 0;
+  valEl.textContent = v;
+}
+
+/* =====================================================
+   유산소 타이머
+===================================================== */
+function toggleTimer() {
+  if (state.timerRunning) {
+    clearInterval(state.timerInterval);
+    state.timerRunning = false;
+    state.cardioDoneSeconds = state.timerSeconds;
+    document.getElementById('timerStartBtn').textContent = '▶ 재시작';
+    document.getElementById('cardio-done').textContent =
+      Math.floor(state.timerSeconds/60) + '분';
+    updateExKcal();
+  } else {
+    state.timerRunning = true;
+    document.getElementById('timerStartBtn').textContent = '⏸ 일시정지';
+    state.timerInterval = setInterval(() => {
+      state.timerSeconds++;
+      updateTimerDisplay();
+    }, 1000);
+  }
+}
+
+function resetTimer() {
+  clearInterval(state.timerInterval);
+  state.timerRunning = false;
+  state.timerSeconds = 0;
+  updateTimerDisplay();
+  document.getElementById('timerStartBtn').textContent = '▶ 시작';
+}
+
+function updateTimerDisplay() {
+  const m = String(Math.floor(state.timerSeconds/60)).padStart(2,'0');
+  const s = String(state.timerSeconds%60).padStart(2,'0');
+  document.getElementById('timerDisplay').textContent = m + ':' + s;
+}
+
+/* =====================================================
+   운동 완료 체크
+===================================================== */
+function toggleExCheck(el) {
+  el.classList.toggle('done');
+  el.textContent = el.classList.contains('done') ? '✓' : '';
+  state.exDoneCount = document.querySelectorAll('.ex-check.done').length;
+  document.getElementById('ex-done-count').textContent = state.exDoneCount;
+  updateExKcal();
+}
+
+function updateExKcal() {
+  const burn = state.exDoneCount * 80 + Math.floor(state.cardioDoneSeconds/60) * 7;
+  document.getElementById('ex-kcal-burn').textContent = burn;
+}
+
+/* =====================================================
+   근력 세트 관리
+===================================================== */
+function addSet() {
+  const rows = document.getElementById('setRows');
+  const num = rows.children.length + 1;
+  const div = document.createElement('div');
+  div.className = 'set-row';
+  div.innerHTML = `
+    <input class="set-input" value="${num}" readonly/>
+    <input class="set-input" placeholder="60"/>
+    <input class="set-input" placeholder="12"/>
+    <button class="set-del" onclick="delSet(this)">✕</button>`;
+  rows.appendChild(div);
+}
+
+function delSet(btn) {
+  btn.closest('.set-row').remove();
+  // 세트 번호 재정렬
+  document.querySelectorAll('#setRows .set-row').forEach((row,i) => {
+    row.children[0].value = i+1;
+  });
+}
+
+function selectLift(el) {
+  document.querySelectorAll('#liftChips .chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+}
+
+/* =====================================================
+   체중 저장 & 차트
+===================================================== */
+function onWeightInput(val) {
+  if (!val) return;
+  const prev = state.weightLog[5]; // 어제
+  if (prev) {
+    const diff = (parseFloat(val) - prev).toFixed(1);
+    const diffEl = document.getElementById('weightDiff');
+    diffEl.style.display = 'block';
+    if (diff < 0) { diffEl.textContent = diff+'kg ▼'; diffEl.className='wi-diff diff-down'; }
+    else if (diff > 0) { diffEl.textContent = '+'+diff+'kg ▲'; diffEl.className='wi-diff diff-up'; }
+    else { diffEl.textContent = '변화없음'; diffEl.className='wi-diff diff-same'; }
+  }
+}
+
+function saveWeight() {
+  const val = parseFloat(document.getElementById('weightInput').value);
+  if (!val || isNaN(val)) { alert('체중을 입력해줘'); return; }
+  state.currentWeight = val;
+  state.weightLog[6] = val;
+
+  document.getElementById('gc-current').textContent = val;
+  document.getElementById('home-weight').textContent = val+'kg';
+
+  const prev = state.weightLog[5];
+  if (prev) {
+    const diff = (val - prev).toFixed(1);
+    document.getElementById('gc-week').textContent = Math.abs(diff);
+    document.getElementById('gc-week-diff').textContent =
+      diff < 0 ? '▼ 감소' : diff > 0 ? '▲ 증가' : '변화없음';
+    document.getElementById('gc-week-diff').style.color =
+      diff < 0 ? 'var(--green)' : diff > 0 ? 'var(--red)' : 'var(--g500)';
+  }
+
+  if (state.goalWeight) {
+    const remaining = (val - state.goalWeight).toFixed(1);
+    document.getElementById('gc-diff').textContent =
+      remaining > 0 ? `목표까지 -${remaining}kg` : '🎉 목표 달성!';
+  }
+
+  renderWeightChart();
+  calcBMI();
+  alert('✅ 오늘 체중이 저장됐어!');
+}
+
+function saveGoal() {
+  const g = parseFloat(document.getElementById('goalWeightInput').value);
+  const w = parseInt(document.getElementById('goalWeekInput').value);
+  if (!g) { alert('목표 체중을 입력해줘'); return; }
+  state.goalWeight = g;
+  document.getElementById('gc-goal').textContent = g;
+  if (state.currentWeight) {
+    const rem = (state.currentWeight - g).toFixed(1);
+    document.getElementById('gc-diff').textContent =
+      rem > 0 ? `목표까지 -${rem}kg` : '🎉 목표 달성!';
+  }
+  alert(`🎯 목표 체중 ${g}kg (${w||'-'}주) 저장됐어!`);
+}
+
+/* =====================================================
+   체중 차트 렌더링
+===================================================== */
+function renderWeightChart() {
+  const days = ['6일전','5일전','4일전','3일전','2일전','어제','오늘'];
+  const data = [...state.weightLog];
+  const validVals = data.filter(v => v !== null);
+  if (!validVals.length) return;
+
+  const min = Math.min(...validVals) - 1;
+  const max = Math.max(...validVals) + 1;
+  const range = max - min || 1;
+
+  const wrap = document.getElementById('weightChart');
+  wrap.innerHTML = '';
+  wrap.style.height = '160px';
+
+  data.forEach((val, i) => {
+    const barWrap = document.createElement('div');
+    barWrap.className = 'chart-bar-wrap';
+
+    const bar = document.createElement('div');
+    if (val !== null) {
+      const pct = Math.max(((val - min) / range) * 100, 5);
+      bar.className = 'chart-bar' + (i===6 ? ' today' : '');
+      bar.style.height = pct + '%';
+      bar.setAttribute('data-val', val+'kg');
+    } else {
+      bar.className = 'chart-bar';
+      bar.style.height = '5%';
+      bar.style.background = 'var(--g200)';
+    }
+
+    const lbl = document.createElement('div');
+    lbl.className = 'chart-day' + (i===6 ? ' today' : '');
+    lbl.textContent = days[i];
+
+    barWrap.appendChild(bar);
+    barWrap.appendChild(lbl);
+    wrap.appendChild(barWrap);
+  });
+}
+
+/* =====================================================
+   BMI 계산
+===================================================== */
+function calcBMI() {
+  const h = parseFloat(document.getElementById('heightInput').value);
+  const w = state.currentWeight || parseFloat(document.getElementById('weightInput').value);
+  if (!h || !w) return;
+  const bmi = (w / ((h/100)**2)).toFixed(1);
+  document.getElementById('bmi-val').textContent = `BMI ${bmi}`;
+
+  let status, cls;
+  if (bmi < 18.5)     { status='저체중'; cls='badge-orange'; }
+  else if (bmi < 23)  { status='정상';   cls='badge-green'; }
+  else if (bmi < 25)  { status='과체중'; cls='badge-orange'; }
+  else                { status='비만';   cls='badge-red'; }
+
+  const el = document.getElementById('bmi-status');
+  el.textContent = status;
+  el.className = 'bm-status badge ' + cls;
+}
+
+/* =====================================================
+   식단 모달
+===================================================== */
+function openMealModal(time) {
+  state.currentMealTime = time;
+  document.getElementById('mealModalTitle').textContent = `🍽️ ${time} 음식 추가`;
+  document.getElementById('mealModal').classList.add('open');
+}
+
+function closeMealModal(e, confirm) {
+  if (e && e.target !== document.getElementById('mealModal') && !confirm) return;
+  document.getElementById('mealModal').classList.remove('open');
+}
+
+/* =====================================================
+   운동 모달
+===================================================== */
+function openExModal() {
+  document.getElementById('exModal').classList.add('open');
+}
+
+function closeExModal(e) {
+  if (e && e.target !== document.getElementById('exModal')) return;
+  document.getElementById('exModal').classList.remove('open');
+}
+
+function addExercise() {
+  const name = document.getElementById('exNameInput').value.trim() ||
+    [...document.querySelectorAll('#exModal .chip.on')].map(c=>c.textContent).join(', ');
+  const detail = document.getElementById('exDetailInput').value.trim() || '기록 없음';
+  if (!name) { alert('운동 이름을 입력해줘'); return; }
+
+  const list = document.getElementById('exerciseList');
+  const item = document.createElement('div');
+  item.className = 'exercise-item fade-in';
+  item.innerHTML = `
+    <div class="ex-icon" style="background:var(--g200)">🏃</div>
+    <div class="ex-info">
+      <div class="ex-name">${name}</div>
+      <div class="ex-detail">${detail}</div>
+    </div>
+    <div class="ex-check" onclick="toggleExCheck(this)"></div>`;
+  list.appendChild(item);
+
+  document.getElementById('exNameInput').value = '';
+  document.getElementById('exDetailInput').value = '';
+  document.getElementById('exModal').classList.remove('open');
+}
+
+function toggleFoodChip(el) {
+  el.classList.toggle('on');
+}
+</script>
+
+</body>
+</html>
