@@ -2517,6 +2517,14 @@
     let careerHistory = []; // { role:'user'|'ai', text }
     let gptMessages   = []; // OpenAI API에 보낼 messages 배열
 
+    function escHtml(t) {
+      return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+    // 안전하게 이스케이프한 뒤 **굵게**와 줄바꿈만 변환
+    function fmtChat(t) {
+      return escHtml(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+    }
+
     function renderCareerChat() {
       const box = document.getElementById('careerChatBox');
       box.innerHTML = '';
@@ -2527,11 +2535,11 @@
           div.innerHTML =
             '<div class="cc-avatar">🎓</div>' +
             '<div class="cc-bubble"><div class="cc-text">' +
-            m.text.replace(/\n/g,'<br>') + '</div></div>';
+            fmtChat(m.text) + '</div></div>';
         } else {
           div.innerHTML =
             '<div class="cc-bubble cc-user-bubble"><div class="cc-text">' +
-            m.text + '</div></div>';
+            escHtml(m.text) + '</div></div>';
         }
         box.appendChild(div);
       });
