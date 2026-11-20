@@ -55,15 +55,16 @@ export default async function handler(req, res) {
       generationConfig: { maxOutputTokens: 2500, temperature: 0.7 }
     });
 
-    // 모델이 종료/변경돼도 동작하도록 순서대로 시도
-    const MODELS = ['gemini-flash-latest', 'gemini-2.5-flash'];
+    // 모델 종료·한도 초과·과부하에도 동작하도록 순서대로 시도
+    const MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest'];
     let response;
     for (const model of MODELS) {
       response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
         { method: 'POST', headers: { 'Content-Type': 'application/json' }, body }
       );
-      if (response.status !== 404) break;
+      // 모델 없음(404), 한도 초과(429), 과부하(503)면 다음 모델로 넘어가
+      if (![404, 429, 500, 503].includes(response.status)) break;
     }
 
     if (!response.ok) {
