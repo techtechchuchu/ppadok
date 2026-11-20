@@ -5,9 +5,24 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+  // [임시 진단] GET: 사용 가능한 모델 이름만 반환 (키는 노출하지 않음)
+  if (req.method === 'GET') {
+    if (!GEMINI_API_KEY) return res.status(500).json({ error: 'no key' });
+    try {
+      const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key=' + GEMINI_API_KEY);
+      const j = await r.json();
+      const names = (j.models || [])
+        .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
+        .map(m => m.name.replace('models/', ''));
+      return res.status(r.status).json({ status: r.status, models: names, error: j.error?.message });
+    } catch (e) {
+      return res.status(500).json({ error: e.message });
+    }
+  }
+
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   if (!GEMINI_API_KEY) {
     return res.status(500).json({ error: 'API 키가 설정되지 않았어. Vercel 환경변수를 확인해줘.' });
@@ -63,6 +78,7 @@ export default async function handler(req, res) {
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
         { method: 'POST', headers: { 'Content-Type': 'application/json' }, body }
       );
+      console.log('model attempt', model, response.status);
       // 모델 없음(404), 한도 초과(429), 과부하(503)면 다음 모델로 넘어가
       if (![404, 429, 500, 503].includes(response.status)) break;
     }
