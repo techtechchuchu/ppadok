@@ -1272,9 +1272,9 @@
 
     <!-- 히어로 -->
     <section class="hero korean" id="heroSection">
-      <div class="hero-badge" id="heroBadge">⚡ 국어 지문 속독 트레이닝</div>
-      <h1 id="heroTitle">긴 지문도<br><span class="hl">2배 빠르게</span><br>읽을 수 있어</h1>
-      <p id="heroDesc">수능·내신 국어 지문, 왜 이렇게 긴 걸까?<br>빠독이 핵심만 쏙 뽑아주고 읽는 속도를 직접 키워줄게.</p>
+      <div class="hero-badge" id="heroBadge">⚡ 쉬운 국어 읽기 연습</div>
+      <h1 id="heroTitle">어려운 글도<br><span class="hl">쉽게 이해</span>할 수 있어</h1>
+      <p id="heroDesc">모르는 낱말이 나와도 괜찮아.<br>빠독이 핵심만 쏙 뽑아 주고, 읽는 연습을 같이 해 줄게.</p>
       <div class="hero-cta">
         <button class="btn-primary" onclick="switchTab('tab-tutor'); switchNavItem(1)">📷 지금 내 답안 분석받기</button>
         <button class="btn-ghost">미리 체험해보기</button>
@@ -1286,7 +1286,7 @@
       <div class="subj-card active-subj" id="home-kor" onclick="setHomeSubject('korean')">
         <div class="sc-emoji">📖</div>
         <div class="sc-name">국어</div>
-        <div class="sc-tag tag-korean">독해·속독</div>
+        <div class="sc-tag tag-korean">독해·낱말</div>
       </div>
       <div class="subj-card" id="home-mat" onclick="setHomeSubject('math')">
         <div class="sc-emoji">📐</div>
@@ -1303,16 +1303,16 @@
     <!-- 통계 바 -->
     <div class="stats-bar">
       <div class="stat-item">
-        <div class="stat-num" id="statNum1">2.1<span>배</span></div>
-        <div class="stat-label" id="statLabel1">평균 속도 향상</div>
+        <div class="stat-num" id="statNum1">24<span>시간</span></div>
+        <div class="stat-label" id="statLabel1">언제든 질문</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num">4.8<span>★</span></div>
-        <div class="stat-label">학생 만족도</div>
+        <div class="stat-num">3<span>과목</span></div>
+        <div class="stat-label">국어·수학·영어</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num">12<span>만+</span></div>
-        <div class="stat-label">이용 학생</div>
+        <div class="stat-num">쉬운<span>말</span></div>
+        <div class="stat-label">쉬운 한국어로 설명</div>
       </div>
     </div>
 
@@ -1320,7 +1320,7 @@
     <div class="subj-content active" id="content-korean">
       <section class="section">
         <p class="section-title">빠독의 국어 해결법</p>
-        <p class="section-sub">긴 지문도 4가지 방법으로 빠르게</p>
+        <p class="section-sub">긴 글도 4가지 방법으로 쉽게</p>
         <div class="feature-grid">
           <div class="feature-card active">
             <div class="feat-icon" style="background:#e0f2fe">🔍</div>
@@ -1920,9 +1920,9 @@
         label: '국어',
         color: '#6366f1',
         heroClass: 'korean',
-        heroBadge: '⚡ 국어 지문 속독 트레이닝',
-        heroTitle: '긴 지문도<br><span class="hl">2배 빠르게</span><br>읽을 수 있어',
-        heroDesc: '수능·내신 국어 지문, 왜 이렇게 긴 걸까?<br>빠독이 핵심만 쏙 뽑아주고 읽는 속도를 직접 키워줄게.',
+        heroBadge: '⚡ 쉬운 국어 읽기 연습',
+        heroTitle: '어려운 글도<br><span class="hl">쉽게 이해</span>할 수 있어',
+        heroDesc: '모르는 낱말이 나와도 괜찮아.<br>빠독이 핵심만 쏙 뽑아 주고, 읽는 연습을 같이 해 줄게.',
         uploadTitle: '국어 답안지 사진을 올려줘',
         tipText: '글씨가 잘 보이게 밝은 곳에서 찍어줘.<br>답을 고친 흔적도 그대로 찍는 게 더 정확해.',
         resultLabel: '국어 답안 분석 결과야',
@@ -2473,10 +2473,11 @@
     ===================================================== */
     const CAREER_QUICK = [
       '이과 vs 문과 어떻게 선택하지?',
-      '성적은 중간인데 갈 수 있는 대학이 궁금해',
+      '두 나라 말을 할 수 있는데, 이걸 살릴 수 있는 진로가 궁금해',
+      '이주배경 학생이 지원할 수 있는 대학 전형이 있어?',
       '좋아하는 게 없는데 전공 어떻게 고르지?',
-      '의대 vs 공대, 뭐가 더 나을까?',
-      '문과인데 취업 잘 되는 전공 알려줘',
+      '고등학교 졸업하고 바로 취업하려면 뭘 준비해야 해?',
+      '한국어 어휘력은 어떻게 늘릴 수 있어?',
       '내 적성을 모르겠어, 어떻게 찾지?',
     ];
 
@@ -2626,7 +2627,7 @@
     // 초기 AI 인사
     careerHistory.push({
       role: 'ai',
-      text: '안녕! 나는 빠독 진로 상담 AI야 🎓\n전공 선택, 대학 입시, 직업 탐색 뭐든 물어봐.\n진로가 정해졌으면 구체적인 입시 전략까지 알려줄게!'
+      text: '안녕! 나는 빠독 진로 상담 AI야 🎓\n전공 고르기, 대학 가는 길, 직업 찾기까지 편하게 물어봐.\n쉬운 말로 알려줄게!'
     });
     renderCareerChat();
 
@@ -2865,15 +2866,15 @@
         <div class="ct-title">전공 탐색</div>
         <div class="ct-sub">적성 모를 때</div>
       </div>
-      <div class="career-topic-card" onclick="quickCareer('의대 vs 공대, 뭐가 더 나을까?')">
-        <div class="ct-emoji">🏥</div>
-        <div class="ct-title">의대 vs 공대</div>
-        <div class="ct-sub">인기 학과 비교</div>
+      <div class="career-topic-card" onclick="quickCareer('두 나라 말을 할 수 있는데, 이걸 살릴 수 있는 진로가 궁금해')">
+        <div class="ct-emoji">🌏</div>
+        <div class="ct-title">두 나라 말이 강점</div>
+        <div class="ct-sub">이중언어 살리기</div>
       </div>
-      <div class="career-topic-card" onclick="quickCareer('문과인데 취업 잘 되는 전공 알려줘')">
-        <div class="ct-emoji">💼</div>
-        <div class="ct-title">취업 전공</div>
-        <div class="ct-sub">문과 강세 분야</div>
+      <div class="career-topic-card" onclick="quickCareer('이주배경 학생이 지원할 수 있는 대학 전형이 있어?')">
+        <div class="ct-emoji">🎓</div>
+        <div class="ct-title">대학 가는 길</div>
+        <div class="ct-sub">이주배경 학생 전형</div>
       </div>
     </div>
 
