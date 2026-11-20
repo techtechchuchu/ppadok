@@ -51,27 +51,27 @@ export default async function handler(req, res) {
       parts: [{ text: m.content }]
     }));
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: {
-            parts: [{ text: SYSTEM_PROMPT }]
-          },
-          contents: geminiContents,
-          generationConfig: {
-            maxOutputTokens: 800,
-            temperature: 0.7
-          }
-        })
-      }
-    );
+    const body = JSON.stringify({
+      system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+      contents: geminiContents,
+      generationConfig: { maxOutputTokens: 800, temperature: 0.7 }
+    });
+
+    // 모델이 종료/변경돼도 동작하도록 순서대로 시도
+    const MODELS = ['gemini-flash-latest', 'gemini-2.5-flash'];
+    let response;
+    for (const model of MODELS) {
+      response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body }
+      );
+      if (response.status !== 404) break;
+    }
 
     if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error?.message || 'Gemini API 오류');
+      const err = await response.json().catch(() => ({}));
+      console.error('Gemini error', response.status, err.error?.message);
+      throw new Error('AI 응답을 가져오지 못했어요. 잠시 후 다시 시도해 주세요.');
     }
 
     const data  = await response.json();
