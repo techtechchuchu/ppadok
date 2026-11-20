@@ -52,7 +52,7 @@ export default async function handler(req, res) {
     const body = JSON.stringify({
       system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
       contents: geminiContents,
-      generationConfig: { maxOutputTokens: 800, temperature: 0.7 }
+      generationConfig: { maxOutputTokens: 2500, temperature: 0.7 }
     });
 
     // 모델이 종료/변경돼도 동작하도록 순서대로 시도
