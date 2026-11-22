@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>빠독 - 빠른 독해 & AI 과외</title>
+  <title>빠독 - 쉬운 말로 돕는 AI 학습·진로 도우미</title>
+  <meta name="description" content="한국에서 자란 이주배경 청소년을 위한 AI 학습·진로 도우미. 쉬운 한국어로 설명하고, 진로와 대학 가는 길을 24시간 알려 줘요." />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="빠독 - 쉬운 말로 돕는 AI 학습·진로 도우미" />
+  <meta property="og:description" content="이주배경 청소년을 위한 AI 학습·진로 도우미. 쉬운 한국어로, 24시간 언제든 물어봐." />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
 
@@ -1230,7 +1234,10 @@
     }
 
     .streak-dot.hit { background: var(--yellow); }
-  </style>
+      .demo-note{margin:12px 20px 0;padding:10px 14px;border-radius:12px;background:#fff7e0;border:1px solid #f5d98a;color:#7a5a00;font-size:13px;line-height:1.5;}
+    .ai-note{padding:8px 20px 0;font-size:12px;color:#6b7280;line-height:1.5;background:var(--white);}
+    .app-toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:rgba(20,24,60,.92);color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;z-index:9999;}
+</style>
 </head>
 <body>
 
@@ -1277,7 +1284,7 @@
       <p id="heroDesc">모르는 낱말이 나와도 괜찮아.<br>빠독이 핵심만 쏙 뽑아 주고, 읽는 연습을 같이 해 줄게.</p>
       <div class="hero-cta">
         <button class="btn-primary" onclick="switchTab('tab-tutor'); switchNavItem(1)">📷 지금 내 답안 분석받기</button>
-        <button class="btn-ghost">미리 체험해보기</button>
+        <button class="btn-ghost" onclick="switchTab('tab-quiz'); switchNavItem(2); startWordQuiz();">미리 체험해보기</button>
       </div>
     </section>
 
@@ -1463,7 +1470,7 @@
             <div class="feat-icon" style="background:#fef9c3">🎯</div>
             <div class="feat-info">
               <div class="feat-title">빈출 구문 패턴 훈련</div>
-              <div class="feat-desc">수능 자주 나오는 구문 패턴 집중 반복</div>
+              <div class="feat-desc">시험에 자주 나오는 구문 패턴 집중 반복</div>
             </div>
           </div>
           <div class="feature-card">
@@ -1609,6 +1616,7 @@
       <button class="analyze-btn" id="analyzeBtn" disabled>
         <span>🔍</span> <span id="analyzeBtnText">AI 분석 시작하기</span>
       </button>
+      <div class="demo-note">🧪 시연용 화면이에요. 지금은 올린 사진을 실제로 분석하지 않고, 예시 결과를 보여 줘요. (실제 분석은 개발 중)</div>
     </div><!-- /page-upload -->
 
     <!-- STEP 2: 분석 중 -->
@@ -1644,6 +1652,7 @@
 
     <!-- STEP 3: 결과 리포트 -->
     <div class="tutor-page" id="page-result">
+      <div class="demo-note">🧪 시연용 예시 결과예요. 실제 사진 분석은 개발 중이에요.</div>
 
       <div class="result-hero">
         <div class="result-hero-top">
@@ -1772,7 +1781,7 @@
         <!-- 단어 카드 -->
         <div class="word-card">
           <div class="word-eng" id="wEng">ambiguous</div>
-          <div class="word-hint" id="wHint">형용사 · 수능 빈출</div>
+          <div class="word-hint" id="wHint">형용사 · 시험에 자주 나와</div>
           <button class="word-flip-btn" onclick="flipWord()">💡 뜻 먼저 보기</button>
           <div class="word-meaning" id="wMeaning">
             <div class="wm-kor" id="wKor">모호한, 불분명한</div>
@@ -1902,7 +1911,7 @@
       <div class="nav-icon">📊</div>
       <div class="nav-label">기록</div>
     </button>
-    <button class="nav-item" id="nav-4">
+    <button class="nav-item" id="nav-4" onclick="showToast('내 정보는 준비 중이에요')">
       <div class="nav-icon">👤</div>
       <div class="nav-label">내 정보</div>
     </button>
@@ -1959,7 +1968,7 @@
         resultComment: '풀이 접근은 맞는데 계산 마지막 단계에서 부호 실수가 반복돼. <strong style="color:#fde68a;">최종 검산 루틴</strong>을 만들면 이런 실수 80%는 잡을 수 있어.',
         scoreWrong: '4', scoreTime: '+6분', scoreGrowth: '↑8%',
         errors: [
-          { qnum:'5번', type:'계산 실수', typeClass:'tag-red', cardClass:'', title:'부호 처리에서 반복 실수가 나왔어', desc:'음수를 대입할 때 괄호를 빠뜨려서 부호가 뒤집혔어. 수능에서 가장 흔한 실수야.', tip:'음수 대입할 때 항상 괄호 먼저 쓰는 습관 — (−3)² 처럼.' },
+          { qnum:'5번', type:'계산 실수', typeClass:'tag-red', cardClass:'', title:'부호 처리에서 반복 실수가 나왔어', desc:'음수를 대입할 때 괄호를 빠뜨려서 부호가 뒤집혔어. 시험에서 가장 흔한 실수야.', tip:'음수 대입할 때 항상 괄호 먼저 쓰는 습관 — (−3)² 처럼.' },
           { qnum:'11번', type:'개념 혼동', typeClass:'tag-orange', cardClass:'warning', title:'등차수열과 등비수열 공식을 혼동했어', desc:'등차수열 공식 자리에 등비수열 공식을 썼어. 공식 정리가 필요해.', tip:'두 공식을 나란히 적고 차이를 외우는 비교 암기법을 써봐.' },
           { qnum:'15번', type:'시간 초과', typeClass:'tag-blue', cardClass:'info', title:'이 문항에서 시간을 너무 많이 썼어', desc:'그래프 해석 단계에서 멈칫했어. 좌표 변환에 익숙해지면 빨라질 수 있어.', tip:'좌표 변환 문제를 유형별로 10문제씩 반복 훈련해봐.' },
         ],
@@ -2015,6 +2024,11 @@
       document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
       document.getElementById(id).classList.add('active');
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showToast(msg) {
+      var t = document.createElement('div'); t.className = 'app-toast'; t.textContent = msg;
+      document.body.appendChild(t); setTimeout(function(){ t.remove(); }, 1800);
     }
 
     function switchNavItem(idx) {
@@ -2288,33 +2302,33 @@
        ⚡ 퀴즈 탭 — 영어 단어 퀴즈 + 국어 독해 퀴즈
     ===================================================== */
     const WORDS = [
-      { eng:'ambiguous',   kor:'모호한, 불분명한',      hint:'형용사 · 수능 빈출', ex:'The ambiguous statement confused everyone.' },
+      { eng:'ambiguous',   kor:'모호한, 불분명한',      hint:'형용사 · 시험에 자주 나와', ex:'The ambiguous statement confused everyone.' },
       { eng:'contemplate', kor:'숙고하다, 고려하다',     hint:'동사 · 고난도',       ex:'She contemplated the difficult decision.' },
-      { eng:'intrinsic',   kor:'본질적인, 고유한',       hint:'형용사 · 수능 빈출', ex:'The work has intrinsic value beyond money.' },
+      { eng:'intrinsic',   kor:'본질적인, 고유한',       hint:'형용사 · 시험에 자주 나와', ex:'The work has intrinsic value beyond money.' },
       { eng:'alleviate',   kor:'완화하다, 줄이다',       hint:'동사 · 빈출',         ex:'Rest can alleviate stress effectively.' },
-      { eng:'prevalent',   kor:'만연한, 널리 퍼진',      hint:'형용사 · 수능 빈출', ex:'Smartphones are prevalent in modern life.' },
+      { eng:'prevalent',   kor:'만연한, 널리 퍼진',      hint:'형용사 · 시험에 자주 나와', ex:'Smartphones are prevalent in modern life.' },
       { eng:'cognitive',   kor:'인지의, 인식의',         hint:'형용사 · 심리학',     ex:'Cognitive skills improve with practice.' },
-      { eng:'indifferent', kor:'무관심한',                hint:'형용사 · 수능 빈출', ex:'He seemed indifferent to the results.' },
+      { eng:'indifferent', kor:'무관심한',                hint:'형용사 · 시험에 자주 나와', ex:'He seemed indifferent to the results.' },
       { eng:'profound',    kor:'심오한, 깊은',            hint:'형용사 · 고난도',     ex:'The book had a profound impact on me.' },
-      { eng:'substantial', kor:'상당한, 실질적인',        hint:'형용사 · 수능 빈출', ex:'There was a substantial improvement.' },
-      { eng:'facilitate',  kor:'촉진하다, 가능하게 하다', hint:'동사 · 수능 빈출', ex:'Technology facilitates communication.' },
-      { eng:'perceive',    kor:'인식하다, 지각하다',      hint:'동사 · 수능 빈출',   ex:'How do you perceive this change?' },
-      { eng:'inevitable',  kor:'불가피한',                hint:'형용사 · 수능 빈출', ex:'Change is an inevitable part of life.' },
+      { eng:'substantial', kor:'상당한, 실질적인',        hint:'형용사 · 시험에 자주 나와', ex:'There was a substantial improvement.' },
+      { eng:'facilitate',  kor:'촉진하다, 가능하게 하다', hint:'동사 · 시험에 자주 나와', ex:'Technology facilitates communication.' },
+      { eng:'perceive',    kor:'인식하다, 지각하다',      hint:'동사 · 시험에 자주 나와',   ex:'How do you perceive this change?' },
+      { eng:'inevitable',  kor:'불가피한',                hint:'형용사 · 시험에 자주 나와', ex:'Change is an inevitable part of life.' },
       { eng:'resilient',   kor:'회복력 있는',             hint:'형용사 · 최빈출',    ex:'Children are often surprisingly resilient.' },
       { eng:'obsolete',    kor:'구식의, 쓸모없어진',      hint:'형용사 · 고난도',     ex:'The technology quickly became obsolete.' },
-      { eng:'hierarchy',   kor:'계층 구조, 위계질서',     hint:'명사 · 수능 빈출',   ex:'The social hierarchy affects behavior.' },
-      { eng:'contradict',  kor:'반박하다, 모순되다',      hint:'동사 · 수능 빈출',   ex:'The evidence contradicts the theory.' },
+      { eng:'hierarchy',   kor:'계층 구조, 위계질서',     hint:'명사 · 시험에 자주 나와',   ex:'The social hierarchy affects behavior.' },
+      { eng:'contradict',  kor:'반박하다, 모순되다',      hint:'동사 · 시험에 자주 나와',   ex:'The evidence contradicts the theory.' },
       { eng:'empathy',     kor:'공감, 감정이입',          hint:'명사 · 최빈출',       ex:'Empathy allows us to understand others.' },
-      { eng:'diminish',    kor:'줄어들다, 약화되다',      hint:'동사 · 수능 빈출',   ex:'The noise began to diminish at night.' },
+      { eng:'diminish',    kor:'줄어들다, 약화되다',      hint:'동사 · 시험에 자주 나와',   ex:'The noise began to diminish at night.' },
       { eng:'diverse',     kor:'다양한',                   hint:'형용사 · 기본',       ex:'The team has diverse backgrounds.' },
       { eng:'stimulus',    kor:'자극, 촉진제',             hint:'명사 · 심리학',       ex:'Music can act as a stimulus for creativity.' },
-      { eng:'adaptive',    kor:'적응하는',                 hint:'형용사 · 수능 빈출', ex:'Humans are highly adaptive creatures.' },
+      { eng:'adaptive',    kor:'적응하는',                 hint:'형용사 · 시험에 자주 나와', ex:'Humans are highly adaptive creatures.' },
       { eng:'hypothesis',  kor:'가설',                     hint:'명사 · 과학',         ex:'The scientist tested the hypothesis.' },
       { eng:'perspective', kor:'관점, 시각',               hint:'명사 · 최빈출',       ex:'Consider the problem from a new perspective.' },
       { eng:'skeptical',   kor:'회의적인',                  hint:'형용사 · 고난도',     ex:'Scientists are skeptical of the claim.' },
       { eng:'deteriorate', kor:'악화되다',                  hint:'동사 · 고난도',       ex:'The situation began to deteriorate.' },
       { eng:'elaborate',   kor:'자세히 설명하다 / 정교한', hint:'동·형용사 · 고난도', ex:'Could you elaborate on that point?' },
-      { eng:'ethical',     kor:'윤리적인',                  hint:'형용사 · 수능 빈출', ex:'We must consider the ethical implications.' },
+      { eng:'ethical',     kor:'윤리적인',                  hint:'형용사 · 시험에 자주 나와', ex:'We must consider the ethical implications.' },
       { eng:'spontaneous', kor:'자발적인, 즉흥적인',       hint:'형용사 · 고난도',     ex:'His spontaneous reaction surprised us.' },
       { eng:'diligent',    kor:'부지런한, 근면한',          hint:'형용사 · 기본',       ex:'She is a diligent student.' },
       { eng:'anticipate',  kor:'예상하다, 기대하다',        hint:'동사 · 기본',         ex:'We anticipated the victory.' },
@@ -2401,7 +2415,7 @@
       document.getElementById('wordCorrectNum').textContent=wCorrect;
       document.getElementById('wordWrongNum').textContent=wWrong;
       document.getElementById('wordTimeNum').textContent=wTotalTime+'초';
-      const t=['조금 더 연습이 필요해 💪','절반 넘었어, 잘하고 있어!','훌륭해! 거의 다 맞혔어 🎉','완벽! 수능 영어 문제없어 🏆'];
+      const t=['조금 더 연습이 필요해 💪','절반 넘었어, 잘하고 있어!','훌륭해! 거의 다 맞혔어 🎉','완벽! 영어 낱말 문제없어 🏆'];
       document.getElementById('wordResultTitle').textContent=t[wCorrect<=4?0:wCorrect<=7?1:wCorrect<=9?2:3];
       document.getElementById('wordResultSub').textContent='정답률 '+Math.round(wCorrect/wPool.length*100)+'% · 총 '+wTotalTime+'초';
     }
@@ -2783,7 +2797,7 @@
         </div>
         <div class="word-card">
           <div class="word-eng" id="wEng">ambiguous</div>
-          <div class="word-hint" id="wHint">형용사 · 수능 빈출</div>
+          <div class="word-hint" id="wHint">형용사 · 시험에 자주 나와</div>
           <button class="word-flip-btn" onclick="flipWord()">💡 뜻 먼저 보기</button>
           <div class="word-meaning" id="wMeaning">
             <div class="wm-kor" id="wKor">모호한, 불분명한</div>
@@ -2892,6 +2906,7 @@
       <div class="quick-q-scroll" id="quickQScroll"></div>
     </div>
 
+    <div class="ai-note">💡 AI 답변은 참고용이에요. 대학 전형 같은 정확한 정보는 입학처·학교 선생님께 꼭 확인해요.</div>
     <!-- 채팅 창 -->
     <div class="career-chat-box" id="careerChatBox"></div>
 
