@@ -516,7 +516,7 @@
     .btn-dark:hover { transform: translateY(-2px); }
 
     /* ===========================
-       [TAB 2] AI 과외 선생님
+       [TAB 2] AI 1:1 멘토링
     =========================== */
 
     /* 과목 선택 헤더 (과외 탭) */
@@ -1416,7 +1416,7 @@
             <div class="feat-icon" style="background:#fff7ed">⏱️</div>
             <div class="feat-info">
               <div class="feat-title">시간 단축 루트</div>
-              <div class="feat-desc">더 빠른 풀이법을 선생님처럼 제안해줘</div>
+              <div class="feat-desc">더 빠른 풀이법을 멘토처럼 제안해줘</div>
             </div>
           </div>
         </div>
@@ -1520,14 +1520,14 @@
           <div class="step-num">2</div>
           <div class="step-content">
             <div class="step-title">답안 사진 찍기</div>
-            <div class="step-desc">풀어놓은 답안지를 AI 과외 선생님에게<br>사진 한 장으로 제출</div>
+            <div class="step-desc">풀어놓은 답안지를 AI 멘토에게<br>사진 한 장으로 보내기</div>
           </div>
         </div>
         <div class="step-item" style="padding-bottom:0">
           <div class="step-num">3</div>
           <div class="step-content">
             <div class="step-title">오답 분석 & 맞춤 처방 받기</div>
-            <div class="step-desc">틀린 이유, 시간 낭비 구간, 이번 주<br>처방까지 선생님처럼 알려줘</div>
+            <div class="step-desc">틀린 이유와 고치는 방법을<br>멘토처럼 쉽게 알려줘</div>
           </div>
         </div>
       </div>
@@ -1537,13 +1537,13 @@
     <section class="bottom-cta">
       <h2>지금 시작하면<br>다음 시험이 달라져</h2>
       <p>무료로 7일 체험 · 신용카드 불필요</p>
-      <button class="btn-dark" onclick="switchTab('tab-tutor'); switchNavItem(1)">🚀 AI 과외 선생님 시작하기</button>
+      <button class="btn-dark" onclick="switchTab('tab-tutor'); switchNavItem(1)">🚀 AI 1:1 멘토링 시작하기</button>
     </section>
 
   </div><!-- /tab-home -->
 
 
-  <!-- ========================= TAB 2: AI 과외 선생님 ========================= -->
+  <!-- ========================= TAB 2: AI 1:1 멘토링 ========================= -->
   <div class="tab-view" id="tab-tutor">
 
     <!-- 과목 선택 바 -->
@@ -1616,7 +1616,7 @@
       <button class="analyze-btn" id="analyzeBtn" disabled>
         <span>🔍</span> <span id="analyzeBtnText">AI 분석 시작하기</span>
       </button>
-      <div class="demo-note">🧪 시연용 화면이에요. 지금은 올린 사진을 실제로 분석하지 않고, 예시 결과를 보여 줘요. (실제 분석은 개발 중)</div>
+      <div class="demo-note">🔒 올린 사진은 분석에만 쓰고 저장하지 않아요. 이름·학교 같은 개인정보는 가리고 찍어 줘요.</div>
     </div><!-- /page-upload -->
 
     <!-- STEP 2: 분석 중 -->
@@ -1624,27 +1624,27 @@
       <div class="analyzing-wrap">
         <div class="spinner-ring"></div>
         <h2>분석하고 있어...</h2>
-        <p>선생님이 꼼꼼하게<br>답안을 살펴보는 중이야.</p>
+        <p>멘토가 꼼꼼하게<br>답안을 살펴보는 중이야. (10~20초)</p>
       </div>
       <div class="analysis-steps">
         <div class="a-step">
           <div class="a-step-icon loading" id="astep1">🔍</div>
-          <div class="a-step-label" id="alabel1">문자 인식 (OCR)</div>
+          <div class="a-step-label" id="alabel1">사진 읽기</div>
           <div class="a-step-status status-loading" id="astatus1">분석 중...</div>
         </div>
         <div class="a-step">
           <div class="a-step-icon pending" id="astep2">❌</div>
-          <div class="a-step-label pending" id="alabel2">오답 패턴 분류</div>
+          <div class="a-step-label pending" id="alabel2">틀린 부분 찾기</div>
           <div class="a-step-status status-wait" id="astatus2">대기 중</div>
         </div>
         <div class="a-step">
           <div class="a-step-icon pending" id="astep3">⏱️</div>
-          <div class="a-step-label pending" id="alabel3">시간 낭비 구간 분석</div>
+          <div class="a-step-label pending" id="alabel3">틀린 이유 정리</div>
           <div class="a-step-status status-wait" id="astatus3">대기 중</div>
         </div>
         <div class="a-step">
           <div class="a-step-icon pending" id="astep4">📋</div>
-          <div class="a-step-label pending" id="alabel4">맞춤 처방 생성</div>
+          <div class="a-step-label pending" id="alabel4">연습 방법 만들기</div>
           <div class="a-step-status status-wait" id="astatus4">대기 중</div>
         </div>
       </div>
@@ -1652,13 +1652,13 @@
 
     <!-- STEP 3: 결과 리포트 -->
     <div class="tutor-page" id="page-result">
-      <div class="demo-note">🧪 시연용 예시 결과예요. 실제 사진 분석은 개발 중이에요.</div>
+      <div class="demo-note">💡 AI가 사진을 보고 분석한 결과예요. 틀릴 수 있으니 참고용으로 보고, 학교 선생님께도 꼭 확인해요.</div>
 
       <div class="result-hero">
         <div class="result-hero-top">
           <div class="tutor-avatar">🧑‍🏫</div>
           <div class="tutor-intro">
-            <small>AI 과외 선생님의 총평</small>
+            <small>AI 1:1 멘토링 총평</small>
             <strong id="resultSubjectLabel">국어 답안 분석 결과야</strong>
           </div>
         </div>
@@ -1670,40 +1670,9 @@
         </div>
       </div>
 
-      <div class="score-row">
-        <div class="score-card">
-          <div class="sc-icon">❌</div>
-          <div class="sc-num red" id="scoreWrong">3</div>
-          <div class="sc-label">오답 문항</div>
-        </div>
-        <div class="score-card">
-          <div class="sc-icon">⏱️</div>
-          <div class="sc-num orange" id="scoreTime">+4분</div>
-          <div class="sc-label">초과 시간</div>
-        </div>
-        <div class="score-card">
-          <div class="sc-icon">📈</div>
-          <div class="sc-num green" id="scoreGrowth">↑12%</div>
-          <div class="sc-label">지난주 대비</div>
-        </div>
-      </div>
-
       <!-- 오답 분석 -->
       <div class="result-section" id="resultErrors">
-        <div class="result-section-title">🔴 오답 분석</div>
-        <!-- JS로 과목별 렌더링 -->
-      </div>
-
-      <!-- 시간 분석 -->
-      <div class="result-section">
-        <div class="result-section-title">⏱️ 시간 사용 분석</div>
-        <div class="time-analysis">
-          <div class="time-analysis-title">📊 구간별 소요 시간</div>
-          <div id="timeBars"><!-- JS 렌더링 --></div>
-          <div class="error-tip" style="margin-top:12px;">
-            <strong>💡 선생님 코멘트:</strong> <span id="timeComment">가장 오래 걸린 구간에 집중 훈련이 필요해.</span>
-          </div>
-        </div>
+        <div class="result-section-title">🔴 틀린 부분 분석</div>
       </div>
 
       <!-- 처방 -->
@@ -1713,7 +1682,7 @@
           <div class="pc-header">
             <div class="pc-icon">💊</div>
             <div>
-              <div class="pc-title">선생님이 골라준 3가지 훈련</div>
+              <div class="pc-title">멘토가 골라준 3가지 연습</div>
               <div class="pc-sub">매일 10~15분이면 충분해</div>
             </div>
           </div>
@@ -1723,23 +1692,10 @@
         </div>
       </div>
 
-      <!-- 주간 차트 -->
-      <div class="result-section">
-        <div class="result-section-title">📈 이번 주 성장 기록</div>
-        <div class="weekly-preview">
-          <div class="wp-title">📅 오답 수 변화 (최근 7일)</div>
-          <div class="mini-chart" id="miniChart"></div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.55);text-align:center;">
-            지난주 평균 대비 오답 <span style="color:#86efac;font-weight:700;">12% 감소</span> 했어 👏
-          </div>
-        </div>
-      </div>
-
       <!-- 액션 버튼 -->
       <div class="result-actions">
         <button class="btn-full btn-yellow-full" onclick="resetTutor()">📷 다른 답안 또 분석하기</button>
         <button class="btn-full btn-navy-full" onclick="switchTab('tab-home'); switchNavItem(0)">🏠 홈으로 돌아가기</button>
-        <button class="btn-full btn-outline-full">📤 결과 저장·공유하기</button>
       </div>
 
     </div><!-- /page-result -->
@@ -1901,7 +1857,7 @@
     </button>
     <button class="nav-item" id="nav-1" onclick="switchTab('tab-tutor'); switchNavItem(1)">
       <div class="nav-icon">🧑‍🏫</div>
-      <div class="nav-label">AI 과외</div>
+      <div class="nav-label">1:1 멘토링</div>
     </button>
     <button class="nav-item" id="nav-2" onclick="switchTab('tab-quiz'); switchNavItem(2)">
       <div class="nav-icon">⚡</div>
@@ -1961,7 +1917,7 @@
         heroClass: 'math',
         heroBadge: '📐 수학 풀이 오답 분석',
         heroTitle: '계산 실수를<br><span class="hl">AI가 딱</span><br>잡아줄게',
-        heroDesc: '풀이 흔적을 사진으로 찍으면<br>어느 단계에서 왜 틀렸는지 선생님처럼 알려줄게.',
+        heroDesc: '풀이 흔적을 사진으로 찍으면<br>어느 단계에서 왜 틀렸는지 멘토처럼 알려줄게.',
         uploadTitle: '수학 풀이 사진을 올려줘',
         tipText: '풀이 과정을 지우지 말고 그대로 찍어줘.<br>어느 단계에서 막혔는지가 보여야 정확히 분석돼.',
         resultLabel: '수학 답안 분석 결과야',
@@ -2136,9 +2092,11 @@
     const previewRemove = document.getElementById('previewRemove');
     const analyzeBtn   = document.getElementById('analyzeBtn');
 
+    let currentFile = null;
     fileInput.addEventListener('change', e => {
       const file = e.target.files[0];
       if (!file) return;
+      currentFile = file;
       showPreview(URL.createObjectURL(file));
     });
 
@@ -2149,7 +2107,7 @@
     uploadZone.addEventListener('drop', e => {
       e.preventDefault(); uploadZone.classList.remove('drag-over');
       const file = e.dataTransfer.files[0];
-      if (file && file.type.startsWith('image/')) showPreview(URL.createObjectURL(file));
+      if (file && file.type.startsWith('image/')) { currentFile = file; showPreview(URL.createObjectURL(file)); }
     });
 
     function showPreview(url) {
@@ -2164,6 +2122,7 @@
       previewWrap.classList.remove('visible');
       uploadZone.style.display = '';
       fileInput.value = '';
+      currentFile = null;
       analyzeBtn.disabled = true;
     }
 
@@ -2196,92 +2155,92 @@
       else { status.textContent = '대기 중'; status.className = 'a-step-status status-wait'; }
     }
 
-    function runAnalysis() {
+    function fileToJpegBase64(file) {
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          const max = 1400; const k = Math.min(1, max / Math.max(img.width, img.height));
+          const cv = document.createElement('canvas');
+          cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
+          cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+          URL.revokeObjectURL(url);
+          resolve(cv.toDataURL('image/jpeg', 0.82).split(',')[1]);
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('이미지를 읽지 못했어요. JPG나 PNG로 다시 올려 주세요.')); };
+        img.src = url;
+      });
+    }
+
+    function failAnalysis(msg) {
+      goToTutorPage('page-upload');
+      showToast(msg);
+    }
+
+    async function runAnalysis() {
       [1,2,3,4].forEach(n => setStep(n, 'pending'));
       setStep(1, 'loading');
-      setTimeout(() => { setStep(1,'complete'); setStep(2,'loading'); }, 1100);
-      setTimeout(() => { setStep(2,'complete'); setStep(3,'loading'); }, 2200);
-      setTimeout(() => { setStep(3,'complete'); setStep(4,'loading'); }, 3200);
-      setTimeout(() => { setStep(4,'complete'); }, 4100);
-      setTimeout(() => { renderResult(); goToTutorPage('page-result'); }, 4700);
+      const timers = [
+        setTimeout(() => { setStep(1,'complete'); setStep(2,'loading'); }, 2500),
+        setTimeout(() => { setStep(2,'complete'); setStep(3,'loading'); }, 7000),
+        setTimeout(() => { setStep(3,'complete'); setStep(4,'loading'); }, 12000),
+      ];
+      const stop = () => timers.forEach(clearTimeout);
+      try {
+        if (!currentFile) throw new Error('사진을 먼저 올려 주세요.');
+        const image = await fileToJpegBase64(currentFile);
+        const types = Array.from(document.querySelectorAll('#chips-' + currentSubject + ' .type-chip.selected')).map(c => c.textContent.trim());
+        const r = await fetch('/api/analyze', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image, mimeType: 'image/jpeg', subject: currentSubject, types })
+        });
+        const data = await r.json().catch(() => ({}));
+        stop();
+        if (!r.ok) throw new Error(data.error || '지금은 분석하지 못했어요. 잠시 후 다시 시도해 주세요.');
+        if (data.ok === false) throw new Error(data.reason || '사진에서 답안을 읽지 못했어요. 밝은 곳에서 다시 찍어 줘요.');
+        [1,2,3,4].forEach(n => setStep(n, 'complete'));
+        renderResult(data);
+        setTimeout(() => goToTutorPage('page-result'), 400);
+      } catch (e) {
+        stop();
+        failAnalysis(e.message || '분석에 실패했어요.');
+      }
     }
 
     /* =====================================================
-       과목별 결과 렌더링
+       결과 렌더링 (AI 응답)
     ===================================================== */
-    function renderResult() {
+    function renderResult(data) {
       const d = SUBJECT_DATA[currentSubject];
+      document.getElementById('resultSubjectLabel').textContent = d.label + ' 답안 분석 결과야';
+      document.getElementById('resultComment').innerHTML = fmtChat(String(data.summary || '분석 결과가 비어 있어요.'));
 
-      document.getElementById('resultSubjectLabel').textContent = d.resultLabel;
-      document.getElementById('resultComment').innerHTML = d.resultComment;
-      document.getElementById('scoreWrong').textContent = d.scoreWrong;
-      document.getElementById('scoreTime').textContent  = d.scoreTime;
-      document.getElementById('scoreGrowth').textContent = d.scoreGrowth;
-      document.getElementById('timeComment').textContent = d.timeComment;
-
-      // 오답 카드
       const errWrap = document.getElementById('resultErrors');
-      errWrap.innerHTML = '<div class="result-section-title">🔴 오답 분석</div>';
-      d.errors.forEach(err => {
-        errWrap.innerHTML += `
-          <div class="error-card ${err.cardClass}">
+      const tags = ['tag-red', 'tag-orange', 'tag-blue', 'tag-red'];
+      const cls = ['', 'warning', 'info', ''];
+      let html = '<div class="result-section-title">🔴 틀린 부분 분석</div>';
+      (Array.isArray(data.problems) ? data.problems : []).slice(0, 4).forEach((err, i) => {
+        html += `
+          <div class="error-card ${cls[i % 4]}">
             <div class="error-card-top">
-              <span class="error-qnum">${err.qnum}</span>
-              <span class="error-type-tag ${err.typeClass}">${err.type}</span>
+              <span class="error-qnum">${escHtml(String(err.qnum || '풀이'))}</span>
+              <span class="error-type-tag ${tags[i % 4]}">${escHtml(String(err.type || '실수'))}</span>
             </div>
-            <div class="error-title">${err.title}</div>
-            <div class="error-desc">${err.desc}</div>
-            <div class="error-tip"><strong>💊 처방:</strong> ${err.tip}</div>
+            <div class="error-title">${escHtml(String(err.title || ''))}</div>
+            <div class="error-desc">${escHtml(String(err.desc || ''))}</div>
+            <div class="error-tip"><strong>💊 고치는 법:</strong> ${escHtml(String(err.tip || ''))}</div>
           </div>`;
       });
+      errWrap.innerHTML = html;
 
-      // 시간 바
-      const tbWrap = document.getElementById('timeBars');
-      tbWrap.innerHTML = '';
-      d.timeBars.forEach(bar => {
-        tbWrap.innerHTML += `
-          <div class="time-bar-row">
-            <div class="time-bar-label">${bar.label}</div>
-            <div class="time-bar-track"><div class="time-bar-fill ${bar.cls}" style="width:${bar.pct}%"></div></div>
-            <div class="time-bar-val">${bar.val}</div>
-          </div>`;
-      });
-
-      // 처방
       const pWrap = document.getElementById('prescriptionList');
       pWrap.innerHTML = '';
-      d.prescriptions.forEach((p, i) => {
+      (Array.isArray(data.prescriptions) ? data.prescriptions : []).slice(0, 3).forEach((p, i) => {
         pWrap.innerHTML += `
           <div class="prescription-item">
             <div class="pi-num">${i+1}</div>
-            <div class="pi-text"><strong>${p.title}</strong><br>${p.desc}</div>
+            <div class="pi-text"><strong>${escHtml(String(p.title || ''))}</strong><br>${escHtml(String(p.desc || ''))}</div>
           </div>`;
-      });
-
-      // 미니 차트
-      renderMiniChart();
-    }
-
-    function renderMiniChart() {
-      const data = [
-        {day:'월',val:7},{day:'화',val:6},{day:'수',val:8},
-        {day:'목',val:5},{day:'금',val:6},{day:'토',val:4},
-        {day:'오늘',val:3,today:true},
-      ];
-      const max = Math.max(...data.map(d => d.val));
-      const container = document.getElementById('miniChart');
-      container.innerHTML = '';
-      data.forEach(d => {
-        const wrap = document.createElement('div');
-        wrap.className = 'mini-bar-wrap';
-        const bar = document.createElement('div');
-        bar.className = 'mini-bar' + (d.today ? ' today' : '');
-        bar.style.height = Math.round(d.val / max * 100) + '%';
-        const label = document.createElement('div');
-        label.className = 'mini-bar-day' + (d.today ? ' today' : '');
-        label.textContent = d.day;
-        wrap.appendChild(bar); wrap.appendChild(label);
-        container.appendChild(wrap);
       });
     }
 
